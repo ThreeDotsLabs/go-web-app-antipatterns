@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  description: Users
+  version: "0.1"
+  title: Users
+paths:
+  /users:
+    get:
+      summary: Get all users
+      operationId: getUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+    post:
+      summary: Add a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUserRequest'
+      operationId: postUser
+      responses:
+        '201':
+          description: Created
+  /users/{userID}:
+    get:
+      summary: Get a single user
+      operationId: getUser
+      parameters:
+        - $ref: "#/components/parameters/userID"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+    patch:
+      summary: Update user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUserRequest'
+      operationId: patchUser
+      parameters:
+        - $ref: "#/components/parameters/userID"
+      responses:
+        '204':
+          description: No Content
+    delete:
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - $ref: "#/components/parameters/userID"
+      responses:
+        '204':
+          description: No Content
+
+components:
+  parameters:
+    userID:
+      in: path
+      name: userID
+      required: true
+      schema:
+        type: string
+      description: User ID
+
+  schemas:
+    PostUserRequest:
+      type: object
+      required: [first_name, last_name, email]
+      properties:
+        first_name:
+          description: First name
+          type: string
+        last_name:
+          description: Last name
+          type: string
+        email:
+          description: E-mail
+          type: string
+
+    PatchUserRequest:
+      type: object
+      required: []
+      properties:
+        first_name:
+          description: First name
+          type: string
+        last_name:
+          description: Last name
+          type: string
+
+    UsersResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/UserResponse"
+
+    UserResponse:
+      type: object
+      required: [id, first_name, last_name, display_name, emails]
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        display_name:
+          type: string
+        emails:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailResponse"
+
+    EmailResponse:
+      type: object
+      required: [address, primary]
+      properties:
+        address:
+          type: string
+        primary:
+          type: boolean
+
+  responses: {}

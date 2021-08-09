@@ -1,0 +1,61 @@
+services:
+  01_tightly_coupled:
+    build: ./docker/service
+    volumes:
+      - ./01-tightly-coupled:/app
+    working_dir: /app
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
+  02_loosely_coupled:
+    build: ./docker/service
+    volumes:
+      - ./02-loosely-coupled:/app
+    working_dir: /app
+    ports:
+      - 8081:8080
+    restart: unless-stopped
+
+  03_loosely_coupled_generated:
+    build: ./docker/service
+    volumes:
+      - ./03-loosely-coupled-generated:/app
+    working_dir: /app
+    ports:
+      - 8082:8080
+    restart: unless-stopped
+
+  04_loosely_coupled_app_layer:
+    build: ./docker/service
+    volumes:
+      - ./04-loosely-coupled-app-layer:/app
+    working_dir: /app
+    ports:
+      - 8083:8080
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - ./01-tightly-coupled/init.sql:/docker-entrypoint-initdb.d/01.sql
+      - ./02-loosely-coupled/init.sql:/docker-entrypoint-initdb.d/02.sql
+      - ./03-loosely-coupled-generated/init.sql:/docker-entrypoint-initdb.d/03.sql
+      - ./04-loosely-coupled-app-layer/init.sql:/docker-entrypoint-initdb.d/04.sql
+    restart: unless-stopped
+
+  sqlboiler:
+    build: ./docker/sqlboiler
+    volumes:
+      - ./03-loosely-coupled-generated:/src/03-loosely-coupled-generated
+      - ./04-loosely-coupled-app-layer:/src/04-loosely-coupled-app-layer
+
+  oapi-codegen:
+    build: ./docker/oapi-codegen
+    volumes:
+      - ./03-loosely-coupled-generated:/src/03-loosely-coupled-generated
+      - ./04-loosely-coupled-app-layer:/src/04-loosely-coupled-app-layer

@@ -1,0 +1,5 @@
+[mysql]
+host = "mysql"
+user = "root"
+dbname = "loosely_coupled_generated"
+sslmode = "false"
