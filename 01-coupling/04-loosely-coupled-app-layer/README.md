@@ -16,3 +16,5 @@ docker-compose restart oapi-codegen
 ```
 
 See details in [docker/sqlboiler](../docker/sqlboiler) and [docker/oapi-codegen](../docker/oapi-codegen).
+
+![](https://threedots.tech/post/common-anti-patterns-in-go-web-applications/application-layer.png)
