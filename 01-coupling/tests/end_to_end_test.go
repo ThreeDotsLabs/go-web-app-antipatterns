@@ -85,7 +85,7 @@ func testUserLifecycle(t *testing.T, client HTTPClient) {
 	userByID, ok := client.GetUser(user.ID)
 	require.True(t, ok, "Expected to find the user by ID")
 
-	require.Equal(t, firstName+" "+lastName, user.DisplayName)
+	require.Equal(t, firstName+" "+lastName, userByID.DisplayName)
 	require.Len(t, userByID.Emails, 1)
 
 	client.DeleteUser(user.ID)
