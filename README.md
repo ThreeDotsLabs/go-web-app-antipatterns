@@ -7,4 +7,4 @@ For complete description, see [Common Anti-Patterns in Go Web Applications](http
 ## Chapters
 
 1. [Coupling](./01-coupling)
-
+2. [Enums](./02-enums)
