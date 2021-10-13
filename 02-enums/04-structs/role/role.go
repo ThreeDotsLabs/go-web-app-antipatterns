@@ -1,4 +1,5 @@
 package role
+
 import (
 	"errors"
 	"fmt"
