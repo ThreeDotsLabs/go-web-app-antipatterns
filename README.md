@@ -2,9 +2,7 @@
 
 This repository contains short examples of common anti-patterns in Go Web Applications.
 
-For complete description, see [Common Anti-Patterns in Go Web Applications](https://threedots.tech/post/common-anti-patterns-in-go-web-applications/).
-
 ## Chapters
 
-1. [Coupling](./01-coupling)
-2. [Enums](./02-enums)
+1. [Coupling](./01-coupling) ([Common Anti-Patterns in Go Web Applications](https://threedots.tech/post/common-anti-patterns-in-go-web-applications/))
+2. [Enums](./02-enums) ([Safer Enums in Go](https://threedots.tech/post/safer-enums-in-go/))
