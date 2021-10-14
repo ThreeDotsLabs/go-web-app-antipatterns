@@ -1,5 +1,7 @@
 # Coupling
 
+For details, see [Common Anti-Patterns in Go Web Applications](https://threedots.tech/post/common-anti-patterns-in-go-web-applications/).
+
 Strong coupling makes your Web App hard to maintain over time.
 
 The first example shows a tightly coupled service, and the following three a few tactics to approach loose coupling.
