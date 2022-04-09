@@ -81,7 +81,7 @@ func (h SubscribeHandler) Execute(ctx context.Context, cmd Subscribe) (err error
 
 func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
-	h := NewSubscribeHandler(logger, nopMetricsClient{})
+	handler := NewSubscribeHandler(logger, nopMetricsClient{})
 
 	cmd := Subscribe{
 		Email:        "user@example.com",
@@ -93,7 +93,7 @@ func main() {
 		Active: true,
 	})
 
-	err := h.Execute(ctx, cmd)
+	err := handler.Execute(ctx, cmd)
 	if err != nil {
 		log.Fatal(err)
 	}

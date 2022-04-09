@@ -131,7 +131,7 @@ func (d authorizationDecorator[C]) Execute(ctx context.Context, cmd C) error {
 
 func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
-	h := NewSubscribeHandler(logger, nopMetricsClient{})
+	handler := NewSubscribeHandler(logger, nopMetricsClient{})
 
 	unauthorizedHandler := NewUnauthorizedSubscribeHandler(logger, nopMetricsClient{})
 
@@ -145,7 +145,7 @@ func main() {
 		Active: true,
 	})
 
-	err := h.Execute(ctx, cmd)
+	err := handler.Execute(ctx, cmd)
 	if err != nil {
 		log.Fatal(err)
 	}
