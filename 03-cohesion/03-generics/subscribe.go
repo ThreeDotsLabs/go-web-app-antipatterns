@@ -49,7 +49,7 @@ func NewSubscribeHandler() CommandHandler[Subscribe] {
 	return SubscribeHandler{}
 }
 
-func (H SubscribeHandler) Execute(ctx context.Context, cmd Subscribe) error {
+func (h SubscribeHandler) Execute(ctx context.Context, cmd Subscribe) error {
 	// Subscribe the user to the newsletter
 	return nil
 }
