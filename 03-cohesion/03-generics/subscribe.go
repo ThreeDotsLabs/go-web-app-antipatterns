@@ -5,7 +5,7 @@ import (
 )
 
 type CommandHandler[C any] interface {
-	Execute(ctx context.Context, cmd C) error
+	Handle(ctx context.Context, cmd C) error
 }
 
 type MetricsClient interface {
@@ -49,7 +49,7 @@ func NewSubscribeHandler() CommandHandler[Subscribe] {
 	return SubscribeHandler{}
 }
 
-func (h SubscribeHandler) Execute(ctx context.Context, cmd Subscribe) error {
+func (h SubscribeHandler) Handle(ctx context.Context, cmd Subscribe) error {
 	// Subscribe the user to the newsletter
 	return nil
 }

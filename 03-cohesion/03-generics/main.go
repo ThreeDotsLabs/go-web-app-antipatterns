@@ -34,7 +34,7 @@ func main() {
 
 		ctx := ContextWithUser(r.Context(), user)
 
-		err = authorizedHandler.Execute(ctx, cmd)
+		err = authorizedHandler.Handle(ctx, cmd)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -51,7 +51,7 @@ func main() {
 			NewsletterID: "product-news",
 		}
 
-		return unauthorizedHandler.Execute(ctx, cmd)
+		return unauthorizedHandler.Handle(ctx, cmd)
 	}
 
 	rpcHandler := func(ctx context.Context, req SubscribeRPCRequest) error {
@@ -60,7 +60,7 @@ func main() {
 			NewsletterID: "product-news",
 		}
 
-		return unauthorizedHandler.Execute(ctx, cmd)
+		return unauthorizedHandler.Handle(ctx, cmd)
 	}
 
 	_ = httpHandler

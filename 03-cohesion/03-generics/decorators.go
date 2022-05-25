@@ -13,7 +13,7 @@ type loggingDecorator[C any] struct {
 	logger Logger
 }
 
-func (d loggingDecorator[C]) Execute(ctx context.Context, cmd C) (err error) {
+func (d loggingDecorator[C]) Handle(ctx context.Context, cmd C) (err error) {
 	d.logger.Println("Executing command", commandName(cmd), cmd)
 	defer func() {
 		if err == nil {
@@ -23,7 +23,7 @@ func (d loggingDecorator[C]) Execute(ctx context.Context, cmd C) (err error) {
 		}
 	}()
 
-	return d.base.Execute(ctx, cmd)
+	return d.base.Handle(ctx, cmd)
 }
 
 type metricsDecorator[C any] struct {
@@ -31,7 +31,7 @@ type metricsDecorator[C any] struct {
 	client MetricsClient
 }
 
-func (d metricsDecorator[C]) Execute(ctx context.Context, cmd C) (err error) {
+func (d metricsDecorator[C]) Handle(ctx context.Context, cmd C) (err error) {
 	start := time.Now()
 	defer func() {
 		end := time.Now().Sub(start)
@@ -44,14 +44,14 @@ func (d metricsDecorator[C]) Execute(ctx context.Context, cmd C) (err error) {
 		}
 	}()
 
-	return d.base.Execute(ctx, cmd)
+	return d.base.Handle(ctx, cmd)
 }
 
 type authorizationDecorator[C any] struct {
 	base CommandHandler[C]
 }
 
-func (d authorizationDecorator[C]) Execute(ctx context.Context, cmd C) error {
+func (d authorizationDecorator[C]) Handle(ctx context.Context, cmd C) error {
 	user, err := UserFromContext(ctx)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func (d authorizationDecorator[C]) Execute(ctx context.Context, cmd C) error {
 		return errors.New("the user's account is not active")
 	}
 
-	return d.base.Execute(ctx, cmd)
+	return d.base.Handle(ctx, cmd)
 }
 
 func commandName(cmd any) string {

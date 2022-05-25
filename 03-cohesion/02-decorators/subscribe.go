@@ -18,7 +18,7 @@ type Subscribe struct {
 }
 
 type SubscribeHandler interface {
-	Execute(ctx context.Context, cmd Subscribe) error
+	Handle(ctx context.Context, cmd Subscribe) error
 }
 
 type subscribeHandler struct{}
@@ -49,7 +49,7 @@ func NewSubscribeHandler() SubscribeHandler {
 	return subscribeHandler{}
 }
 
-func (h subscribeHandler) Execute(ctx context.Context, cmd Subscribe) error {
+func (h subscribeHandler) Handle(ctx context.Context, cmd Subscribe) error {
 	// Subscribe the user to the newsletter
 	return nil
 }

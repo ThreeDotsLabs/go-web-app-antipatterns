@@ -11,7 +11,7 @@ type subscribeLoggingDecorator struct {
 	logger Logger
 }
 
-func (d subscribeLoggingDecorator) Execute(ctx context.Context, cmd Subscribe) (err error) {
+func (d subscribeLoggingDecorator) Handle(ctx context.Context, cmd Subscribe) (err error) {
 	d.logger.Println("Subscribing to newsletter", cmd)
 	defer func() {
 		if err == nil {
@@ -21,7 +21,7 @@ func (d subscribeLoggingDecorator) Execute(ctx context.Context, cmd Subscribe) (
 		}
 	}()
 
-	return d.base.Execute(ctx, cmd)
+	return d.base.Handle(ctx, cmd)
 }
 
 type subscribeMetricsDecorator struct {
@@ -29,7 +29,7 @@ type subscribeMetricsDecorator struct {
 	client MetricsClient
 }
 
-func (d subscribeMetricsDecorator) Execute(ctx context.Context, cmd Subscribe) (err error) {
+func (d subscribeMetricsDecorator) Handle(ctx context.Context, cmd Subscribe) (err error) {
 	start := time.Now()
 	defer func() {
 		end := time.Now().Sub(start)
@@ -42,14 +42,14 @@ func (d subscribeMetricsDecorator) Execute(ctx context.Context, cmd Subscribe) (
 		}
 	}()
 
-	return d.base.Execute(ctx, cmd)
+	return d.base.Handle(ctx, cmd)
 }
 
 type subscribeAuthorizationDecorator struct {
 	base SubscribeHandler
 }
 
-func (d subscribeAuthorizationDecorator) Execute(ctx context.Context, cmd Subscribe) error {
+func (d subscribeAuthorizationDecorator) Handle(ctx context.Context, cmd Subscribe) error {
 	user, err := UserFromContext(ctx)
 	if err != nil {
 		return err
@@ -59,5 +59,5 @@ func (d subscribeAuthorizationDecorator) Execute(ctx context.Context, cmd Subscr
 		return errors.New("the user's account is not active")
 	}
 
-	return d.base.Execute(ctx, cmd)
+	return d.base.Handle(ctx, cmd)
 }
