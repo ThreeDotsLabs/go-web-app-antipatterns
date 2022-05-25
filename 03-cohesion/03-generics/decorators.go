@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 )
@@ -18,9 +17,9 @@ func (d loggingDecorator[C]) Execute(ctx context.Context, cmd C) (err error) {
 	d.logger.Println("Executing command", commandName(cmd), cmd)
 	defer func() {
 		if err == nil {
-			log.Println("Command executed successfully")
+			d.logger.Println("Command executed successfully")
 		} else {
-			log.Println("Failed to execute command:", err)
+			d.logger.Println("Failed to execute command:", err)
 		}
 	}()
 

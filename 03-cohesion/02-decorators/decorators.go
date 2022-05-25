@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 )
 
@@ -16,9 +15,9 @@ func (d subscribeLoggingDecorator) Execute(ctx context.Context, cmd Subscribe) (
 	d.logger.Println("Subscribing to newsletter", cmd)
 	defer func() {
 		if err == nil {
-			log.Println("Subscribed to newsletter")
+			d.logger.Println("Subscribed to newsletter")
 		} else {
-			log.Println("Failed subscribing to newsletter:", err)
+			d.logger.Println("Failed subscribing to newsletter:", err)
 		}
 	}()
 
