@@ -13,7 +13,7 @@ func TestSubscribe(t *testing.T) {
 		NewsletterID: "product-news",
 	}
 
-	err := handler.Execute(context.Background(), cmd)
+	err := handler.Handle(context.Background(), cmd)
 	if err != nil {
 		t.Fatal(err)
 	}

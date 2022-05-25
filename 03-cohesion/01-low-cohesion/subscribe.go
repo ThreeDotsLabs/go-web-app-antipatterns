@@ -31,7 +31,7 @@ func NewSubscribeHandler(logger Logger, metricsClient MetricsClient) SubscribeHa
 	}
 }
 
-func (h SubscribeHandler) Execute(ctx context.Context, cmd Subscribe) (err error) {
+func (h SubscribeHandler) Handle(ctx context.Context, cmd Subscribe) (err error) {
 	start := time.Now()
 	h.logger.Println("Subscribing to newsletter", cmd)
 	defer func() {
