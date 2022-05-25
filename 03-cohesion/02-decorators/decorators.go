@@ -32,7 +32,7 @@ type subscribeMetricsDecorator struct {
 func (d subscribeMetricsDecorator) Handle(ctx context.Context, cmd Subscribe) (err error) {
 	start := time.Now()
 	defer func() {
-		end := time.Now().Sub(start)
+		end := time.Since(start)
 		d.client.Inc("commands.subscribe.duration", int(end.Seconds()))
 
 		if err == nil {

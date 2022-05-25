@@ -35,7 +35,7 @@ func (h SubscribeHandler) Execute(ctx context.Context, cmd Subscribe) (err error
 	start := time.Now()
 	h.logger.Println("Subscribing to newsletter", cmd)
 	defer func() {
-		end := time.Now().Sub(start)
+		end := time.Since(start)
 		h.metricsClient.Inc("commands.subscribe.duration", int(end.Seconds()))
 
 		if err == nil {

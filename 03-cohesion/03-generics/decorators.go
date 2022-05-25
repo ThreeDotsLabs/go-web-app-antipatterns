@@ -34,7 +34,7 @@ type metricsDecorator[C any] struct {
 func (d metricsDecorator[C]) Handle(ctx context.Context, cmd C) (err error) {
 	start := time.Now()
 	defer func() {
-		end := time.Now().Sub(start)
+		end := time.Since(start)
 		d.client.Inc(fmt.Sprintf("commands.%s.duration", commandName(cmd)), int(end.Seconds()))
 
 		if err == nil {
