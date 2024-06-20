@@ -1,0 +1,35 @@
+services:
+  app_01:
+    build: ./docker/service
+    volumes:
+      - ./01:/app
+    working_dir: /app
+    ports:
+      - 8080:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  app_02:
+    build: ./docker/service
+    volumes:
+      - ./02:/app
+    working_dir: /app
+    ports:
+      - 8081:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+networks:
+  apps:
