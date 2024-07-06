@@ -33,8 +33,6 @@ func NewHTTPHandler(
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		w.WriteHeader(http.StatusAccepted)
 	})
 
 	return mux

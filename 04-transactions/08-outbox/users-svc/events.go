@@ -21,17 +21,26 @@ type EventPublisher struct {
 func NewEventPublisher(db *sql.Tx) (*EventPublisher, error) {
 	logger := watermill.NewStdLogger(false, false)
 
-	publisher, err := watermillSQL.NewPublisher(
+	var publisher message.Publisher
+	var err error
+
+	publisher, err = watermillSQL.NewPublisher(
 		db,
 		watermillSQL.PublisherConfig{
-			SchemaAdapter:        watermillSQL.DefaultPostgreSQLSchema{},
-			AutoInitializeSchema: true,
+			SchemaAdapter: watermillSQL.DefaultPostgreSQLSchema{},
 		},
 		logger,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	publisher = forwarder.NewPublisher(
+		publisher,
+		forwarder.PublisherConfig{
+			ForwarderTopic: "forwarder",
+		},
+	)
 
 	return &EventPublisher{
 		publisher: publisher,
@@ -81,6 +90,9 @@ func NewEventsForwarder(
 	publisher, err := nats.NewPublisher(
 		nats.PublisherConfig{
 			URL: natsURL,
+			JetStream: nats.JetStreamConfig{
+				AutoProvision: true,
+			},
 		},
 		logger,
 	)

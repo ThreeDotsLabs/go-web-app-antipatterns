@@ -40,9 +40,6 @@ func NewUserRepository(db db) *UserRepository {
 
 func (r *UserRepository) GetPoints(ctx context.Context, userID int) (int, error) {
 	row := r.db.QueryRowContext(ctx, "SELECT points FROM users WHERE id = $1 FOR UPDATE", userID)
-	if row.Err() != nil {
-		return 0, row.Err()
-	}
 
 	var points int
 	err := row.Scan(&points)

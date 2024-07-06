@@ -31,9 +31,6 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error {
 	return runInTx(r.db, func(tx *sql.Tx) error {
 		row := tx.QueryRowContext(ctx, "SELECT email, points FROM users WHERE id = $1 FOR UPDATE", userID)
-		if row.Err() != nil {
-			return row.Err()
-		}
 
 		var email string
 		var currentPoints int

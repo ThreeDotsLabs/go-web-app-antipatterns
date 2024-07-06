@@ -1,22 +1,121 @@
 services:
-  app_01:
+  01_no_tx:
     build: ./docker/service
     volumes:
-      - ./01:/app
+      - ./01-no-tx:/app
     working_dir: /app
     ports:
-      - 8080:8080
+      - 8101:8080
     networks:
       - apps
     restart: unless-stopped
 
-  app_02:
+  02_tx_in_logic:
     build: ./docker/service
     volumes:
-      - ./02:/app
+      - ./02-tx-in-logic:/app
     working_dir: /app
     ports:
-      - 8081:8080
+      - 8102:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  03_tx_provider:
+    build: ./docker/service
+    volumes:
+      - ./03-tx-provider:/app
+    working_dir: /app
+    ports:
+      - 8103:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  04_tx_in_repo:
+    build: ./docker/service
+    volumes:
+      - ./04-tx-in-repo:/app
+    working_dir: /app
+    ports:
+      - 8104:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  05_update_func_closure:
+    build: ./docker/service
+    volumes:
+      - ./05-update-func-closure:/app
+    working_dir: /app
+    ports:
+      - 8105:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  06_distributed_monolith_orders:
+    build: ./docker/service
+    volumes:
+      - ./06-distributed-monolith/orders-svc:/app
+    working_dir: /app
+    ports:
+      - 8161:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  06_distributed_monolith_users:
+    build: ./docker/service
+    volumes:
+      - ./06-distributed-monolith/users-svc:/app
+    working_dir: /app
+    ports:
+      - 8162:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  07_eventual_consistency_orders:
+    build: ./docker/service
+    volumes:
+      - ./07-eventual-consistency/orders-svc:/app
+    working_dir: /app
+    ports:
+      - 8171:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  07_eventual_consistency_users:
+    build: ./docker/service
+    volumes:
+      - ./07-eventual-consistency/users-svc:/app
+    working_dir: /app
+    ports:
+      - 8172:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  08_outbox_orders:
+    build: ./docker/service
+    volumes:
+      - ./08-outbox/orders-svc:/app
+    working_dir: /app
+    ports:
+      - 8181:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  08_outbox_users:
+    build: ./docker/service
+    volumes:
+      - ./08-outbox/users-svc:/app
+    working_dir: /app
+    ports:
+      - 8182:8080
     networks:
       - apps
     restart: unless-stopped
@@ -27,6 +126,35 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5432:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+  postgres-orders:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5433:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+  postgres-users:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5434:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+  nats:
+    image: nats:2.10
+    command: ["-js"]
+    ports:
+      - 4222:4222
     networks:
       - apps
     restart: unless-stopped

@@ -19,7 +19,7 @@ func main() {
 	}
 
 	userRepo := NewUserRepository(db)
-	ordersClient := NewOrdersClient("http://orders-svc:8080")
+	ordersClient := NewOrdersClient("http://06_distributed_monolith_orders:8080")
 
 	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, ordersClient)
 

@@ -21,6 +21,9 @@ func NewEventsRouter(
 	subscriber, err := nats.NewSubscriber(
 		nats.SubscriberConfig{
 			URL: natsURL,
+			JetStream: nats.JetStreamConfig{
+				AutoProvision: true,
+			},
 		},
 		logger,
 	)

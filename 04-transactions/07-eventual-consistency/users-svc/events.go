@@ -19,6 +19,9 @@ func NewEventPublisher(natsURL string) (*EventPublisher, error) {
 	publisher, err := nats.NewPublisher(
 		nats.PublisherConfig{
 			URL: natsURL,
+			JetStream: nats.JetStreamConfig{
+				AutoProvision: true,
+			},
 		},
 		logger,
 	)
