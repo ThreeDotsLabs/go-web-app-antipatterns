@@ -23,7 +23,7 @@ func main() {
 
 	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo)
 
-	forwarder, err := NewEventsForwarder("nats://nats:4222", db)
+	forwarder, err := NewEventsForwarder("redis-b:6379", db)
 	if err != nil {
 		panic(err)
 	}

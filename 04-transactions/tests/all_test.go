@@ -79,7 +79,7 @@ func getDB(t *testing.T, port int) *sql.DB {
 func createUser(t *testing.T, tc testCase, points int) int {
 	t.Helper()
 
-	email := uuid.NewString() + "@example.com"
+	email := uuid.NewString() + "@" + tc.Name + ".com"
 
 	usersDB := getDB(t, tc.UsersDBPort)
 

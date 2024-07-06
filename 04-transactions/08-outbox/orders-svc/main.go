@@ -22,7 +22,7 @@ func main() {
 
 	addDiscountHandler := NewAddDiscountHandler(cartRepo)
 
-	router, err := NewEventsRouter("nats://nats:4222", addDiscountHandler)
+	router, err := NewEventsRouter("redis-b:6379", addDiscountHandler)
 	if err != nil {
 		panic(err)
 	}

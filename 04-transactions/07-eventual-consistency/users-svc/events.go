@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
+	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
@@ -13,15 +14,16 @@ type EventPublisher struct {
 	publisher message.Publisher
 }
 
-func NewEventPublisher(natsURL string) (*EventPublisher, error) {
+func NewEventPublisher(redisAddr string) (*EventPublisher, error) {
 	logger := watermill.NewStdLogger(false, false)
 
-	publisher, err := nats.NewPublisher(
-		nats.PublisherConfig{
-			URL: natsURL,
-			JetStream: nats.JetStreamConfig{
-				AutoProvision: true,
-			},
+	client := redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+	})
+
+	publisher, err := redisstream.NewPublisher(
+		redisstream.PublisherConfig{
+			Client: client,
 		},
 		logger,
 	)

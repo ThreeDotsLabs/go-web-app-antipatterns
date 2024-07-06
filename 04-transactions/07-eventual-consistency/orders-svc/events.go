@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
-
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
+	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/redis/go-redis/v9"
 )
 
 func NewEventsRouter(
-	natsURL string,
+	redisAddr string,
 	addDiscountHandler AddDiscountHandler,
 ) (*message.Router, error) {
 	logger := watermill.NewStdLogger(false, false)
@@ -18,12 +18,14 @@ func NewEventsRouter(
 		return nil, err
 	}
 
-	subscriber, err := nats.NewSubscriber(
-		nats.SubscriberConfig{
-			URL: natsURL,
-			JetStream: nats.JetStreamConfig{
-				AutoProvision: true,
-			},
+	client := redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+	})
+
+	subscriber, err := redisstream.NewSubscriber(
+		redisstream.SubscriberConfig{
+			Client:        client,
+			ConsumerGroup: "orders-svc",
 		},
 		logger,
 	)

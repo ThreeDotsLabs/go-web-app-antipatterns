@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
+	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
 	watermillSQL "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/components/forwarder"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/redis/go-redis/v9"
 )
 
 type EventPublisher struct {
@@ -69,7 +70,7 @@ func (p *EventPublisher) Publish(ctx context.Context, event any) error {
 }
 
 func NewEventsForwarder(
-	natsURL string,
+	redisAddr string,
 	db *sql.DB,
 ) (*forwarder.Forwarder, error) {
 	logger := watermill.NewStdLogger(false, false)
@@ -87,12 +88,13 @@ func NewEventsForwarder(
 		return nil, err
 	}
 
-	publisher, err := nats.NewPublisher(
-		nats.PublisherConfig{
-			URL: natsURL,
-			JetStream: nats.JetStreamConfig{
-				AutoProvision: true,
-			},
+	client := redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+	})
+
+	publisher, err := redisstream.NewPublisher(
+		redisstream.PublisherConfig{
+			Client: client,
 		},
 		logger,
 	)

@@ -19,7 +19,7 @@ func main() {
 	}
 
 	userRepo := NewUserRepository(db)
-	publisher, err := NewEventPublisher("nats://nats:4222")
+	publisher, err := NewEventPublisher("redis-a:6379")
 	if err != nil {
 		panic(err)
 	}

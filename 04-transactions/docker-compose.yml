@@ -3,6 +3,8 @@ services:
     build: ./docker/service
     volumes:
       - ./01-no-tx:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8101:8080
@@ -14,6 +16,8 @@ services:
     build: ./docker/service
     volumes:
       - ./02-tx-in-logic:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8102:8080
@@ -25,6 +29,8 @@ services:
     build: ./docker/service
     volumes:
       - ./03-tx-provider:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8103:8080
@@ -36,6 +42,8 @@ services:
     build: ./docker/service
     volumes:
       - ./04-tx-in-repo:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8104:8080
@@ -47,6 +55,8 @@ services:
     build: ./docker/service
     volumes:
       - ./05-update-func-closure:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8105:8080
@@ -58,6 +68,8 @@ services:
     build: ./docker/service
     volumes:
       - ./06-distributed-monolith/orders-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8161:8080
@@ -69,6 +81,8 @@ services:
     build: ./docker/service
     volumes:
       - ./06-distributed-monolith/users-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8162:8080
@@ -80,6 +94,8 @@ services:
     build: ./docker/service
     volumes:
       - ./07-eventual-consistency/orders-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8171:8080
@@ -91,6 +107,8 @@ services:
     build: ./docker/service
     volumes:
       - ./07-eventual-consistency/users-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8172:8080
@@ -102,6 +120,8 @@ services:
     build: ./docker/service
     volumes:
       - ./08-outbox/orders-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8181:8080
@@ -113,6 +133,8 @@ services:
     build: ./docker/service
     volumes:
       - ./08-outbox/users-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
     working_dir: /app
     ports:
       - 8182:8080
@@ -150,14 +172,25 @@ services:
       - apps
     restart: unless-stopped
 
-  nats:
-    image: nats:2.10
-    command: ["-js"]
+  redis-a:
+    image: redis:6-alpine
     ports:
-      - 4222:4222
+      - "6379:6379"
+    networks:
+      - apps
+    restart: unless-stopped
+
+  redis-b:
+    image: redis:6-alpine
+    ports:
+      - "6380:6379"
     networks:
       - apps
     restart: unless-stopped
 
 networks:
   apps:
+
+volumes:
+  go_pkg:
+  go_cache:
