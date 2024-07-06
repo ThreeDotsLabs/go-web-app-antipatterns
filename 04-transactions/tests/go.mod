@@ -1,4 +1,4 @@
-module 01
+module tests
 
 go 1.22.0
 

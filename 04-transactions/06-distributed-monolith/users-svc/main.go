@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@postgres-users:5432/postgres?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
@@ -19,9 +19,9 @@ func main() {
 	}
 
 	userRepo := NewUserRepository(db)
-	cartRepo := NewCartRepository(db)
+	ordersClient := NewOrdersClient("http://orders-svc:8080")
 
-	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, cartRepo)
+	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, ordersClient)
 
 	handler := NewHTTPHandler(usePointsAsDiscountHandler)
 
