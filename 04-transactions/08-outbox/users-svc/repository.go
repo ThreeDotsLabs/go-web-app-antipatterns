@@ -28,7 +28,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error {
+func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []any, error)) error {
 	return runInTx(r.db, func(tx *sql.Tx) error {
 		row := tx.QueryRowContext(ctx, "SELECT email, points FROM users WHERE id = $1 FOR UPDATE", userID)
 		if row.Err() != nil {
@@ -44,7 +44,7 @@ func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn fu
 
 		user := UnmarshalUser(userID, email, currentPoints)
 
-		updated, err := updateFn(user)
+		updated, events, err := updateFn(user)
 		if err != nil {
 			return err
 		}
@@ -56,6 +56,18 @@ func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn fu
 		_, err = tx.ExecContext(ctx, "UPDATE users SET email = $1, points = $2 WHERE id = $3", user.Email(), user.Points(), user.ID())
 		if err != nil {
 			return err
+		}
+
+		publisher, err := NewEventPublisher(tx)
+		if err != nil {
+			return err
+		}
+
+		for _, event := range events {
+			err = publisher.Publish(ctx, event)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil

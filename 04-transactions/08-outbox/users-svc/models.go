@@ -2,6 +2,11 @@ package main
 
 import "errors"
 
+type PointsUsedForDiscount struct {
+	UserID int `json:"user_id"`
+	Points int `json:"points"`
+}
+
 type User struct {
 	id     int
 	email  string

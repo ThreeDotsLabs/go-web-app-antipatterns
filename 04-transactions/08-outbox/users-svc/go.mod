@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-nats/v2 v2.0.2
+	github.com/ThreeDotsLabs/watermill-sql/v3 v3.0.1
 	github.com/lib/pq v1.10.9
 )
 

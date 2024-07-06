@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 
@@ -19,12 +20,20 @@ func main() {
 	}
 
 	userRepo := NewUserRepository(db)
-	publisher, err := NewEventPublisher("nats://nats:4222")
+
+	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo)
+
+	forwarder, err := NewEventsForwarder("nats://nats:4222", db)
 	if err != nil {
 		panic(err)
 	}
 
-	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, publisher)
+	go func() {
+		err := forwarder.Run(context.Background())
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	handler := NewHTTPHandler(usePointsAsDiscountHandler)
 
