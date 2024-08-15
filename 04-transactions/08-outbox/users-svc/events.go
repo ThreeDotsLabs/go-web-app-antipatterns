@@ -4,9 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"strings"
-
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
 	watermillSQL "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
@@ -14,6 +11,10 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/redis/go-redis/v9"
 )
+
+type Event interface {
+	Name() string
+}
 
 type EventPublisher struct {
 	publisher message.Publisher
@@ -48,7 +49,7 @@ func NewEventPublisher(db *sql.Tx) (*EventPublisher, error) {
 	}, nil
 }
 
-func (p *EventPublisher) Publish(ctx context.Context, event any) error {
+func (p *EventPublisher) Publish(ctx context.Context, event Event) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return err
@@ -57,9 +58,7 @@ func (p *EventPublisher) Publish(ctx context.Context, event any) error {
 	msg := message.NewMessage(watermill.NewUUID(), payload)
 	msg.SetContext(ctx)
 
-	name := fmt.Sprintf("%T", event)
-	parts := strings.Split(name, ".")
-	topic := parts[len(parts)-1]
+	topic := event.Name()
 
 	err = p.publisher.Publish(topic, msg)
 	if err != nil {

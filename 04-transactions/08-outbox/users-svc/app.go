@@ -15,7 +15,7 @@ type UsePointsAsDiscountHandler struct {
 }
 
 type userRepository interface {
-	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []any, error)) error
+	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []Event, error)) error
 }
 
 func NewUsePointsAsDiscountHandler(
@@ -27,7 +27,7 @@ func NewUsePointsAsDiscountHandler(
 }
 
 func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsDiscount) error {
-	err := h.userRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, []any, error) {
+	err := h.userRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, []Event, error) {
 		err := user.UsePoints(cmd.Points)
 		if err != nil {
 			return false, nil, err
@@ -38,7 +38,7 @@ func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsD
 			Points: cmd.Points,
 		}
 
-		return true, []any{event}, nil
+		return true, []Event{event}, nil
 	})
 	if err != nil {
 		return fmt.Errorf("could not update user: %w", err)

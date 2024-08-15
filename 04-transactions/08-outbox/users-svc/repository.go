@@ -28,7 +28,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []any, error)) error {
+func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []Event, error)) error {
 	return runInTx(r.db, func(tx *sql.Tx) error {
 		row := tx.QueryRowContext(ctx, "SELECT email, points FROM users WHERE id = $1 FOR UPDATE", userID)
 
