@@ -12,8 +12,8 @@ type UsePointsAsDiscount struct {
 }
 
 type UsePointsAsDiscountHandler struct {
-	userRepository userRepository
-	cartRepository cartRepository
+	userRepository     userRepository
+	discountRepository discountRepository
 }
 
 type userRepository interface {
@@ -21,17 +21,17 @@ type userRepository interface {
 	TakePoints(ctx context.Context, userID int, points int) error
 }
 
-type cartRepository interface {
+type discountRepository interface {
 	AddDiscount(ctx context.Context, userID int, discount int) error
 }
 
 func NewUsePointsAsDiscountHandler(
 	userRepository userRepository,
-	cartRepository cartRepository,
+	discountRepository discountRepository,
 ) UsePointsAsDiscountHandler {
 	return UsePointsAsDiscountHandler{
-		userRepository: userRepository,
-		cartRepository: cartRepository,
+		userRepository:     userRepository,
+		discountRepository: discountRepository,
 	}
 }
 
@@ -54,7 +54,7 @@ func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsD
 		return fmt.Errorf("could not take points: %w", err)
 	}
 
-	err = h.cartRepository.AddDiscount(ctx, cmd.UserID, cmd.Points)
+	err = h.discountRepository.AddDiscount(ctx, cmd.UserID, cmd.Points)
 	if err != nil {
 		return fmt.Errorf("could not add discount: %w", err)
 	}

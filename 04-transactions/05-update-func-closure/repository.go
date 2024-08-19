@@ -15,10 +15,9 @@ func MigrateDB(db *sql.DB) error {
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);
 
-		CREATE TABLE IF NOT EXISTS carts (
+		CREATE TABLE IF NOT EXISTS discounts (
 			user_id INT PRIMARY KEY REFERENCES users(id),
-			discount INT NOT NULL DEFAULT 0,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+			next_order_discount INT NOT NULL DEFAULT 0
 	    );
 	`)
 	return err
@@ -45,7 +44,7 @@ func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn fu
 			return err
 		}
 
-		row = tx.QueryRowContext(ctx, "SELECT discount FROM carts WHERE user_id = $1 FOR UPDATE", userID)
+		row = tx.QueryRowContext(ctx, "SELECT next_order_discount FROM discounts WHERE user_id = $1 FOR UPDATE", userID)
 
 		var discount int
 		err = row.Scan(&discount)
@@ -53,8 +52,8 @@ func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn fu
 			return err
 		}
 
-		cart := UnmarshalCart(discount)
-		user := UnmarshalUser(userID, email, currentPoints, cart)
+		discounts := UnmarshalDiscounts(discount)
+		user := UnmarshalUser(userID, email, currentPoints, discounts)
 
 		updated, err := updateFn(user)
 		if err != nil {
@@ -70,7 +69,7 @@ func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn fu
 			return err
 		}
 
-		_, err = tx.ExecContext(ctx, "UPDATE carts SET discount = $1 WHERE user_id = $2", user.Cart().Discount(), user.ID())
+		_, err = tx.ExecContext(ctx, "UPDATE discounts SET next_order_discount = $1 WHERE user_id = $2", user.Discounts().NextOrderDiscount(), user.ID())
 		if err != nil {
 			return err
 		}

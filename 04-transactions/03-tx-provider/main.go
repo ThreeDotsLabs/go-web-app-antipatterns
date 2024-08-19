@@ -45,7 +45,7 @@ func (p *TransactionProvider) Transact(txFunc func(adapters Adapters) error) err
 	return runInTx(p.db, func(tx *sql.Tx) error {
 		adapters := Adapters{
 			UserRepository: NewUserRepository(tx),
-			CartRepository: NewCartRepository(tx),
+			DiscountRepository: NewDiscountRepository(tx),
 		}
 
 		return txFunc(adapters)

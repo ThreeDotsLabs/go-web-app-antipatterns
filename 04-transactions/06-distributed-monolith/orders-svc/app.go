@@ -11,18 +11,18 @@ type AddDiscount struct {
 }
 
 type AddDiscountHandler struct {
-	cartRepository cartRepository
+	discountRepository discountRepository
 }
 
-type cartRepository interface {
+type discountRepository interface {
 	AddDiscount(ctx context.Context, userID int, discount int) error
 }
 
 func NewAddDiscountHandler(
-	cartRepository cartRepository,
+	discountRepository discountRepository,
 ) AddDiscountHandler {
 	return AddDiscountHandler{
-		cartRepository: cartRepository,
+		discountRepository: discountRepository,
 	}
 }
 
@@ -31,5 +31,5 @@ func (h AddDiscountHandler) Handle(ctx context.Context, cmd AddDiscount) error {
 		return errors.New("discount must be greater than 0")
 	}
 
-	return h.cartRepository.AddDiscount(ctx, cmd.UserID, cmd.Discount)
+	return h.discountRepository.AddDiscount(ctx, cmd.UserID, cmd.Discount)
 }

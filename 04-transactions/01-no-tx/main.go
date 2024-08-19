@@ -19,9 +19,9 @@ func main() {
 	}
 
 	userRepo := NewUserRepository(db)
-	cartRepo := NewCartRepository(db)
+	discountRepo := NewDiscountRepository(db)
 
-	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, cartRepo)
+	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, discountRepo)
 
 	handler := NewHTTPHandler(usePointsAsDiscountHandler)
 

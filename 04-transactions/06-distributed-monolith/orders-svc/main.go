@@ -18,9 +18,9 @@ func main() {
 		panic(err)
 	}
 
-	cartRepo := NewCartRepository(db)
+	discountRepo := NewDiscountRepository(db)
 
-	addDiscountHandler := NewAddDiscountHandler(cartRepo)
+	addDiscountHandler := NewAddDiscountHandler(discountRepo)
 
 	handler := NewHTTPHandler(addDiscountHandler)
 

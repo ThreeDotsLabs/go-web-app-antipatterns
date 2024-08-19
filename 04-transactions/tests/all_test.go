@@ -19,10 +19,10 @@ import (
 )
 
 type testCase struct {
-	Name        string
-	URL         string
-	CartsDBPort int
-	UsersDBPort int
+	Name           string
+	URL            string
+	DiscountDBPort int
+	UsersDBPort    int
 }
 
 func TestAll(t *testing.T) {
@@ -32,9 +32,9 @@ func TestAll(t *testing.T) {
 		{Name: "03-tx-provider", URL: "http://localhost:8103"},
 		{Name: "04-tx-in-repo", URL: "http://localhost:8104"},
 		{Name: "05-update-func-closure", URL: "http://localhost:8105"},
-		{Name: "06-distributed-monolith", URL: "http://localhost:8162", CartsDBPort: 5433, UsersDBPort: 5434},
-		{Name: "07-eventual-consistency", URL: "http://localhost:8172", CartsDBPort: 5433, UsersDBPort: 5434},
-		{Name: "08-outbox", URL: "http://localhost:8182", CartsDBPort: 5433, UsersDBPort: 5434},
+		{Name: "06-distributed-monolith", URL: "http://localhost:8162", DiscountDBPort: 5433, UsersDBPort: 5434},
+		{Name: "07-eventual-consistency", URL: "http://localhost:8172", DiscountDBPort: 5433, UsersDBPort: 5434},
+		{Name: "08-outbox", URL: "http://localhost:8182", DiscountDBPort: 5433, UsersDBPort: 5434},
 	}
 	for _, a := range testCases {
 		t.Run(a.Name, func(t *testing.T) {
@@ -89,9 +89,9 @@ func createUser(t *testing.T, tc testCase, points int) int {
 	err := row.Scan(&id)
 	require.NoError(t, err)
 
-	cartsDB := getDB(t, tc.CartsDBPort)
+	discountDB := getDB(t, tc.DiscountDBPort)
 
-	_, err = cartsDB.Exec("INSERT INTO carts (user_id) VALUES ($1)", id)
+	_, err = discountDB.Exec("INSERT INTO discounts (user_id) VALUES ($1)", id)
 	require.NoError(t, err)
 
 	return int(id)
@@ -144,10 +144,10 @@ func assertPoints(t *testing.T, tc testCase, userID int, expectedPoints int) {
 func assertDiscount(t *testing.T, tc testCase, userID int, expectedDiscount int) {
 	t.Helper()
 
-	cartsDB := getDB(t, tc.CartsDBPort)
+	discountDB := getDB(t, tc.DiscountDBPort)
 
 	assert.EventuallyWithT(t, func(t *assert.CollectT) {
-		row := cartsDB.QueryRowContext(context.Background(), "SELECT discount FROM carts WHERE user_id = $1", userID)
+		row := discountDB.QueryRowContext(context.Background(), "SELECT next_order_discount FROM discounts WHERE user_id = $1", userID)
 
 		var discount int
 		err := row.Scan(&discount)

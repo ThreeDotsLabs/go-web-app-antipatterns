@@ -3,10 +3,10 @@ package main
 import "errors"
 
 type User struct {
-	id     int
-	email  string
-	points int
-	cart   *Cart
+	id        int
+	email     string
+	points    int
+	discounts *Discounts
 }
 
 func (u *User) UsePointsAsDiscount(points int) error {
@@ -19,7 +19,7 @@ func (u *User) UsePointsAsDiscount(points int) error {
 	}
 
 	u.points -= points
-	u.cart.AddDiscount(points)
+	u.discounts.AddNextOrderDiscount(points)
 
 	return nil
 }
@@ -36,33 +36,33 @@ func (u *User) Points() int {
 	return u.points
 }
 
-func (u *User) Cart() *Cart {
-	return u.cart
+func (u *User) Discounts() *Discounts {
+	return u.discounts
 }
 
-type Cart struct {
-	discount int
+type Discounts struct {
+	nextOrderDiscount int
 }
 
-func (c *Cart) Discount() int {
-	return c.discount
+func (c *Discounts) NextOrderDiscount() int {
+	return c.nextOrderDiscount
 }
 
-func (c *Cart) AddDiscount(discount int) {
-	c.discount += discount
+func (c *Discounts) AddNextOrderDiscount(discount int) {
+	c.nextOrderDiscount += discount
 }
 
-func UnmarshalUser(id int, email string, points int, cart *Cart) *User {
+func UnmarshalUser(id int, email string, points int, discounts *Discounts) *User {
 	return &User{
-		id:     id,
-		email:  email,
-		points: points,
-		cart:   cart,
+		id:        id,
+		email:     email,
+		points:    points,
+		discounts: discounts,
 	}
 }
 
-func UnmarshalCart(discount int) *Cart {
-	return &Cart{
-		discount: discount,
+func UnmarshalDiscounts(discount int) *Discounts {
+	return &Discounts{
+		nextOrderDiscount: discount,
 	}
 }

@@ -18,9 +18,9 @@ func main() {
 		panic(err)
 	}
 
-	cartRepo := NewCartRepository(db)
+	discountRepo := NewDiscountRepository(db)
 
-	addDiscountHandler := NewAddDiscountHandler(cartRepo)
+	addDiscountHandler := NewAddDiscountHandler(discountRepo)
 
 	router, err := NewEventsRouter("redis-b:6379", addDiscountHandler)
 	if err != nil {
