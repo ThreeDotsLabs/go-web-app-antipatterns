@@ -22,18 +22,14 @@ func MigrateDB(db *sql.DB) error {
 	return err
 }
 
-type UserRepository struct {
-	db *sql.DB
-}
+type UserRepository struct{}
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{
-		db: db,
-	}
+func NewUserRepository() *UserRepository {
+	return &UserRepository{}
 }
 
 func (r *UserRepository) GetPoints(ctx context.Context, tx *sql.Tx, userID int) (int, error) {
-	row := r.db.QueryRowContext(ctx, "SELECT points FROM users WHERE id = $1 FOR UPDATE", userID)
+	row := tx.QueryRowContext(ctx, "SELECT points FROM users WHERE id = $1 FOR UPDATE", userID)
 
 	var points int
 	err := row.Scan(&points)
@@ -45,21 +41,17 @@ func (r *UserRepository) GetPoints(ctx context.Context, tx *sql.Tx, userID int) 
 }
 
 func (r *UserRepository) TakePoints(ctx context.Context, tx *sql.Tx, userID int, points int) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users SET points = points - $1 WHERE id = $2", points, userID)
+	_, err := tx.ExecContext(ctx, "UPDATE users SET points = points - $1 WHERE id = $2", points, userID)
 	return err
 }
 
-type DiscountRepository struct {
-	db *sql.DB
-}
+type DiscountRepository struct{}
 
-func NewDiscountRepository(db *sql.DB) *DiscountRepository {
-	return &DiscountRepository{
-		db: db,
-	}
+func NewDiscountRepository() *DiscountRepository {
+	return &DiscountRepository{}
 }
 
 func (r *DiscountRepository) AddDiscount(ctx context.Context, tx *sql.Tx, userID int, discount int) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE user_discounts SET next_order_discount = next_order_discount + $1 WHERE user_id = $2", discount, userID)
+	_, err := tx.ExecContext(ctx, "UPDATE user_discounts SET next_order_discount = next_order_discount + $1 WHERE user_id = $2", discount, userID)
 	return err
 }
