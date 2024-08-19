@@ -18,6 +18,12 @@ func MigrateDB(db *sql.DB) error {
 			user_id INT PRIMARY KEY REFERENCES users(id),
 			next_order_discount INT NOT NULL DEFAULT 0
 	    );
+
+		CREATE TABLE IF NOT EXISTS audit_log (
+			id SERIAL PRIMARY KEY,
+			log TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+		);
 	`)
 	return err
 }
@@ -36,35 +42,60 @@ func NewUserRepository(db db) *UserRepository {
 		db: db,
 	}
 }
+func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error {
+	row := r.db.QueryRowContext(ctx, "SELECT email, points FROM users WHERE id = $1 FOR UPDATE", userID)
 
-func (r *UserRepository) GetPoints(ctx context.Context, userID int) (int, error) {
-	row := r.db.QueryRowContext(ctx, "SELECT points FROM users WHERE id = $1 FOR UPDATE", userID)
-
-	var points int
-	err := row.Scan(&points)
+	var email string
+	var currentPoints int
+	err := row.Scan(&email, &currentPoints)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return points, nil
+	row = r.db.QueryRowContext(ctx, "SELECT next_order_discount FROM user_discounts WHERE user_id = $1 FOR UPDATE", userID)
+
+	var discount int
+	err = row.Scan(&discount)
+	if err != nil {
+		return err
+	}
+
+	discounts := UnmarshalDiscounts(discount)
+	user := UnmarshalUser(userID, email, currentPoints, discounts)
+
+	updated, err := updateFn(user)
+	if err != nil {
+		return err
+	}
+
+	if !updated {
+		return nil
+	}
+
+	_, err = r.db.ExecContext(ctx, "UPDATE users SET email = $1, points = $2 WHERE id = $3", user.Email(), user.Points(), user.ID())
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.ExecContext(ctx, "UPDATE user_discounts SET next_order_discount = $1 WHERE user_id = $2", user.Discounts().NextOrderDiscount(), user.ID())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (r *UserRepository) TakePoints(ctx context.Context, userID int, points int) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE users SET points = points - $1 WHERE id = $2", points, userID)
-	return err
-}
-
-type DiscountRepository struct {
+type AuditLogRepository struct {
 	db db
 }
 
-func NewDiscountRepository(db db) *DiscountRepository {
-	return &DiscountRepository{
+func NewAuditLogRepository(db db) *AuditLogRepository {
+	return &AuditLogRepository{
 		db: db,
 	}
 }
 
-func (r *DiscountRepository) AddDiscount(ctx context.Context, userID int, discount int) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE user_discounts SET next_order_discount = next_order_discount + $1 WHERE user_id = $2", discount, userID)
+func (r *AuditLogRepository) StoreAuditLog(ctx context.Context, log string) error {
+	_, err := r.db.ExecContext(ctx, "INSERT INTO audit_log (log) VALUES ($1)", log)
 	return err
 }

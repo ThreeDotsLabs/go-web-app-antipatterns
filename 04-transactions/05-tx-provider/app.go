@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 )
 
@@ -17,7 +16,7 @@ type UsePointsAsDiscountHandler struct {
 
 type Adapters struct {
 	UserRepository     userRepository
-	DiscountRepository discountRepository
+	AuditLogRepository auditLogRepository
 }
 
 type txProvider interface {
@@ -25,12 +24,11 @@ type txProvider interface {
 }
 
 type userRepository interface {
-	GetPoints(ctx context.Context, userID int) (int, error)
-	TakePoints(ctx context.Context, userID int, points int) error
+	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error
 }
 
-type discountRepository interface {
-	AddDiscount(ctx context.Context, userID int, discount int) error
+type auditLogRepository interface {
+	StoreAuditLog(ctx context.Context, log string) error
 }
 
 func NewUsePointsAsDiscountHandler(
@@ -43,27 +41,22 @@ func NewUsePointsAsDiscountHandler(
 
 func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsDiscount) error {
 	return h.txProvider.Transact(func(adapters Adapters) error {
-		if cmd.Points <= 0 {
-			return errors.New("points must be greater than 0")
-		}
+		err := adapters.UserRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, error) {
+			err := user.UsePointsAsDiscount(cmd.Points)
+			if err != nil {
+				return false, err
+			}
 
-		currentPoints, err := adapters.UserRepository.GetPoints(ctx, cmd.UserID)
+			return true, nil
+		})
 		if err != nil {
-			return fmt.Errorf("could not get points: %w", err)
+			return fmt.Errorf("could not use points as discount: %w", err)
 		}
 
-		if currentPoints < cmd.Points {
-			return errors.New("not enough points")
-		}
-
-		err = adapters.UserRepository.TakePoints(ctx, cmd.UserID, cmd.Points)
+		log := fmt.Sprintf("used %d points as discount for user %d", cmd.Points, cmd.UserID)
+		err = adapters.AuditLogRepository.StoreAuditLog(ctx, log)
 		if err != nil {
-			return fmt.Errorf("could not take points: %w", err)
-		}
-
-		err = adapters.DiscountRepository.AddDiscount(ctx, cmd.UserID, cmd.Points)
-		if err != nil {
-			return fmt.Errorf("could not add discount: %w", err)
+			return fmt.Errorf("could not store audit log: %w", err)
 		}
 
 		return nil
