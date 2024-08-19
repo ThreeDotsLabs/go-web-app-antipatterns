@@ -1,4 +1,4 @@
-module github.com/ThreeDotsLabs/go-web-app-antipatterns/04-transactions/05-update-func-closure
+module github.com/ThreeDotsLabs/go-web-app-antipatterns/04-transactions/04-update-func-closure
 
 go 1.22.0
 

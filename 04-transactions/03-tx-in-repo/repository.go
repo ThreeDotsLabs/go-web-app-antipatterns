@@ -15,7 +15,7 @@ func MigrateDB(db *sql.DB) error {
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);
 
-		CREATE TABLE IF NOT EXISTS discounts (
+		CREATE TABLE IF NOT EXISTS user_discounts (
 			user_id INT PRIMARY KEY REFERENCES users(id),
 			next_order_discount INT NOT NULL DEFAULT 0
 	    );
@@ -52,7 +52,7 @@ func (r *UserRepository) UsePointsForDiscount(ctx context.Context, userID int, p
 			return err
 		}
 
-		_, err = tx.ExecContext(ctx, "UPDATE discounts SET next_order_discount = next_order_discount + $1 WHERE user_id = $2", points, userID)
+		_, err = tx.ExecContext(ctx, "UPDATE user_discounts SET next_order_discount = next_order_discount + $1 WHERE user_id = $2", points, userID)
 		if err != nil {
 			return err
 		}

@@ -25,10 +25,10 @@ services:
       - apps
     restart: unless-stopped
 
-  03_tx_provider:
+  03_tx_in_repo:
     build: ./docker/service
     volumes:
-      - ./03-tx-provider:/app
+      - ./03-tx-in-repo:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -38,10 +38,10 @@ services:
       - apps
     restart: unless-stopped
 
-  04_tx_in_repo:
+  04_update_func_closure:
     build: ./docker/service
     volumes:
-      - ./04-tx-in-repo:/app
+      - ./04-update-func-closure:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -51,10 +51,10 @@ services:
       - apps
     restart: unless-stopped
 
-  05_update_func_closure:
+  05_tx_provider:
     build: ./docker/service
     volumes:
-      - ./05-update-func-closure:/app
+      - ./05-tx-provider:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app

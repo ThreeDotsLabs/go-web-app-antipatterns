@@ -29,9 +29,9 @@ func TestAll(t *testing.T) {
 	testCases := []testCase{
 		{Name: "01-no-tx", URL: "http://localhost:8101"},
 		{Name: "02-tx-in-logic", URL: "http://localhost:8102"},
-		{Name: "03-tx-provider", URL: "http://localhost:8103"},
-		{Name: "04-tx-in-repo", URL: "http://localhost:8104"},
-		{Name: "05-update-func-closure", URL: "http://localhost:8105"},
+		{Name: "03-tx-in-repo", URL: "http://localhost:8103"},
+		{Name: "04-update-func-closure", URL: "http://localhost:8104"},
+		{Name: "05-tx-provider", URL: "http://localhost:8105"},
 		{Name: "06-distributed-monolith", URL: "http://localhost:8162", DiscountDBPort: 5433, UsersDBPort: 5434},
 		{Name: "07-eventual-consistency", URL: "http://localhost:8172", DiscountDBPort: 5433, UsersDBPort: 5434},
 		{Name: "08-outbox", URL: "http://localhost:8182", DiscountDBPort: 5433, UsersDBPort: 5434},
@@ -91,7 +91,7 @@ func createUser(t *testing.T, tc testCase, points int) int {
 
 	discountDB := getDB(t, tc.DiscountDBPort)
 
-	_, err = discountDB.Exec("INSERT INTO discounts (user_id) VALUES ($1)", id)
+	_, err = discountDB.Exec("INSERT INTO user_discounts (user_id) VALUES ($1)", id)
 	require.NoError(t, err)
 
 	return int(id)
@@ -147,7 +147,7 @@ func assertDiscount(t *testing.T, tc testCase, userID int, expectedDiscount int)
 	discountDB := getDB(t, tc.DiscountDBPort)
 
 	assert.EventuallyWithT(t, func(t *assert.CollectT) {
-		row := discountDB.QueryRowContext(context.Background(), "SELECT next_order_discount FROM discounts WHERE user_id = $1", userID)
+		row := discountDB.QueryRowContext(context.Background(), "SELECT next_order_discount FROM user_discounts WHERE user_id = $1", userID)
 
 		var discount int
 		err := row.Scan(&discount)
