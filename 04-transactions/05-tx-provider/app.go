@@ -14,13 +14,13 @@ type UsePointsAsDiscountHandler struct {
 	txProvider txProvider
 }
 
+type txProvider interface {
+	Transact(txFunc func(adapters Adapters) error) error
+}
+
 type Adapters struct {
 	UserRepository     userRepository
 	AuditLogRepository auditLogRepository
-}
-
-type txProvider interface {
-	Transact(txFunc func(adapters Adapters) error) error
 }
 
 type userRepository interface {

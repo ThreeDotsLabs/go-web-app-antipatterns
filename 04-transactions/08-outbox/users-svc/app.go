@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 )
 
 type UsePointsAsDiscount struct {
@@ -27,7 +26,7 @@ func NewUsePointsAsDiscountHandler(
 }
 
 func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsDiscount) error {
-	err := h.userRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, []Event, error) {
+	return h.userRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, []Event, error) {
 		err := user.UsePoints(cmd.Points)
 		if err != nil {
 			return false, nil, err
@@ -40,9 +39,4 @@ func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsD
 
 		return true, []Event{event}, nil
 	})
-	if err != nil {
-		return fmt.Errorf("could not update user: %w", err)
-	}
-
-	return nil
 }
