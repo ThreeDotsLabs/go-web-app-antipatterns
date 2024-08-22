@@ -74,7 +74,7 @@ func NewEventsForwarder(
 ) (*forwarder.Forwarder, error) {
 	logger := watermill.NewStdLogger(false, false)
 
-	subscriber, err := watermillSQL.NewSubscriber(
+	sqlSubscriber, err := watermillSQL.NewSubscriber(
 		db,
 		watermillSQL.SubscriberConfig{
 			SchemaAdapter:    watermillSQL.DefaultPostgreSQLSchema{},
@@ -91,7 +91,7 @@ func NewEventsForwarder(
 		Addr: redisAddr,
 	})
 
-	publisher, err := redisstream.NewPublisher(
+	redisPublisher, err := redisstream.NewPublisher(
 		redisstream.PublisherConfig{
 			Client: client,
 		},
@@ -102,8 +102,8 @@ func NewEventsForwarder(
 	}
 
 	fwd, err := forwarder.NewForwarder(
-		subscriber,
-		publisher,
+		sqlSubscriber,
+		redisPublisher,
 		logger,
 		forwarder.Config{
 			ForwarderTopic: "forwarder",
