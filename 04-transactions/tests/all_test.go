@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sync"
 	"testing"
 	"time"
 
@@ -31,21 +30,24 @@ func TestAll(t *testing.T) {
 		{Name: "04-update-func-closure", URL: "http://localhost:8104"},
 		{Name: "05-tx-provider", URL: "http://localhost:8105"},
 	}
-	for _, a := range testCases {
-		t.Run(a.Name, func(t *testing.T) {
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 
-			userID := createUser(t, a, 100)
+			userID := createUser(t, tc, 100)
 
-			usePoints(t, a, userID, 25)
+			usePoints(t, tc, userID, 25)
 
-			assertPoints(t, a, userID, 75)
-			assertDiscount(t, a, userID, 25)
+			assertPoints(t, userID, 75)
+			assertDiscount(t, userID, 25)
+
+			usePoints(t, tc, userID, 50)
+
+			assertPoints(t, userID, 25)
+			assertDiscount(t, userID, 75)
 		})
 	}
 }
-
-var lock sync.Mutex
 
 func getDB(t *testing.T) *sql.DB {
 	t.Helper()
@@ -105,7 +107,7 @@ func usePoints(t *testing.T, tc testCase, userID int, points int) {
 	require.Equal(t, http.StatusOK, res.StatusCode, string(body))
 }
 
-func assertPoints(t *testing.T, tc testCase, userID int, expectedPoints int) {
+func assertPoints(t *testing.T, userID int, expectedPoints int) {
 	t.Helper()
 
 	usersDB := getDB(t)
@@ -121,7 +123,7 @@ func assertPoints(t *testing.T, tc testCase, userID int, expectedPoints int) {
 	}, 2*time.Second, 100*time.Millisecond)
 }
 
-func assertDiscount(t *testing.T, tc testCase, userID int, expectedDiscount int) {
+func assertDiscount(t *testing.T, userID int, expectedDiscount int) {
 	t.Helper()
 
 	discountDB := getDB(t)
