@@ -12,15 +12,15 @@ type UsePointsAsDiscount struct {
 }
 
 type UsePointsAsDiscountHandler struct {
-	userRepository userRepository
+	userRepository UserRepository
 }
 
-type userRepository interface {
+type UserRepository interface {
 	UsePointsForDiscount(ctx context.Context, userID int, point int) error
 }
 
 func NewUsePointsAsDiscountHandler(
-	userRepository userRepository,
+	userRepository UserRepository,
 ) UsePointsAsDiscountHandler {
 	return UsePointsAsDiscountHandler{
 		userRepository: userRepository,

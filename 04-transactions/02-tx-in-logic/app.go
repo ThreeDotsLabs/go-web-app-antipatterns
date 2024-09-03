@@ -14,23 +14,23 @@ type UsePointsAsDiscount struct {
 
 type UsePointsAsDiscountHandler struct {
 	db                 *sql.DB
-	userRepository     userRepository
-	discountRepository discountRepository
+	userRepository     UserRepository
+	discountRepository DiscountRepository
 }
 
-type userRepository interface {
+type UserRepository interface {
 	GetPoints(ctx context.Context, tx *sql.Tx, userID int) (int, error)
 	TakePoints(ctx context.Context, tx *sql.Tx, userID int, points int) error
 }
 
-type discountRepository interface {
+type DiscountRepository interface {
 	AddDiscount(ctx context.Context, tx *sql.Tx, userID int, discount int) error
 }
 
 func NewUsePointsAsDiscountHandler(
 	db *sql.DB,
-	userRepository userRepository,
-	discountRepository discountRepository,
+	userRepository UserRepository,
+	discountRepository DiscountRepository,
 ) UsePointsAsDiscountHandler {
 	return UsePointsAsDiscountHandler{
 		db:                 db,

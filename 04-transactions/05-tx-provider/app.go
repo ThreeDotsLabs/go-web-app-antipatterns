@@ -19,15 +19,15 @@ type txProvider interface {
 }
 
 type Adapters struct {
-	UserRepository     userRepository
-	AuditLogRepository auditLogRepository
+	UserRepository     UserRepository
+	AuditLogRepository AuditLogRepository
 }
 
-type userRepository interface {
+type UserRepository interface {
 	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error
 }
 
-type auditLogRepository interface {
+type AuditLogRepository interface {
 	StoreAuditLog(ctx context.Context, log string) error
 }
 

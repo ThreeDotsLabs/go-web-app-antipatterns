@@ -23,17 +23,17 @@ func MigrateDB(db *sql.DB) error {
 	return err
 }
 
-type UserRepository struct {
+type PostgresUserRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{
+func NewPostgresUserRepository(db *sql.DB) *PostgresUserRepository {
+	return &PostgresUserRepository{
 		db: db,
 	}
 }
 
-func (r *UserRepository) UsePointsForDiscount(ctx context.Context, userID int, points int) error {
+func (r *PostgresUserRepository) UsePointsForDiscount(ctx context.Context, userID int, points int) error {
 	return runInTx(r.db, func(tx *sql.Tx) error {
 		row := tx.QueryRowContext(ctx, "SELECT points FROM users WHERE id = $1 FOR UPDATE", userID)
 
