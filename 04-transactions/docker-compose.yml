@@ -1,0 +1,82 @@
+services:
+  01_no_tx:
+    build: ./docker/service
+    volumes:
+      - ./01-no-tx:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8101:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  02_tx_in_logic:
+    build: ./docker/service
+    volumes:
+      - ./02-tx-in-logic:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8102:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  03_tx_in_repo:
+    build: ./docker/service
+    volumes:
+      - ./03-tx-in-repo:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8103:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  04_update_func_closure:
+    build: ./docker/service
+    volumes:
+      - ./04-update-func-closure:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8104:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  05_tx_provider:
+    build: ./docker/service
+    volumes:
+      - ./05-tx-provider:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8105:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+networks:
+  apps:
+
+volumes:
+  go_pkg:
+  go_cache:
