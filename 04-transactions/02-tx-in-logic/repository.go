@@ -17,7 +17,7 @@ func MigrateDB(db *sql.DB) error {
 		CREATE TABLE IF NOT EXISTS user_discounts (
 			user_id INT PRIMARY KEY REFERENCES users(id),
 			next_order_discount INT NOT NULL DEFAULT 0
-	    );
+		);
 	`)
 	return err
 }
