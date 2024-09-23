@@ -11,21 +11,21 @@ type UsePointsAsDiscount struct {
 }
 
 type UsePointsAsDiscountHandler struct {
-	userRepository userRepository
-	eventPublisher eventPublisher
+	userRepository UserRepository
+	eventPublisher EventPublisher
 }
 
-type userRepository interface {
+type UserRepository interface {
 	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error
 }
 
-type eventPublisher interface {
+type EventPublisher interface {
 	PublishPointsUsedForDiscount(ctx context.Context, userID int, points int) error
 }
 
 func NewUsePointsAsDiscountHandler(
-	userRepository userRepository,
-	eventPublisher eventPublisher,
+	userRepository UserRepository,
+	eventPublisher EventPublisher,
 ) UsePointsAsDiscountHandler {
 	return UsePointsAsDiscountHandler{
 		userRepository: userRepository,

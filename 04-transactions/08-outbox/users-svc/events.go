@@ -16,11 +16,11 @@ type Event interface {
 	Name() string
 }
 
-type EventPublisher struct {
+type WatermillEventPublisher struct {
 	publisher message.Publisher
 }
 
-func NewEventPublisher(db *sql.Tx) (*EventPublisher, error) {
+func NewEventPublisher(db *sql.Tx) (*WatermillEventPublisher, error) {
 	logger := watermill.NewStdLogger(false, false)
 
 	var publisher message.Publisher
@@ -44,12 +44,12 @@ func NewEventPublisher(db *sql.Tx) (*EventPublisher, error) {
 		},
 	)
 
-	return &EventPublisher{
+	return &WatermillEventPublisher{
 		publisher: publisher,
 	}, nil
 }
 
-func (p *EventPublisher) Publish(ctx context.Context, event Event) error {
+func (p *WatermillEventPublisher) Publish(ctx context.Context, event Event) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return err

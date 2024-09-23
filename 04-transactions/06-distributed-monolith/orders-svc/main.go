@@ -18,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	discountRepo := NewDiscountRepository(db)
+	discountRepo := NewPostgresDiscountRepository(db)
 
 	addDiscountHandler := NewAddDiscountHandler(discountRepo)
 

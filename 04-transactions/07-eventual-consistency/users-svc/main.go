@@ -18,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	userRepo := NewUserRepository(db)
+	userRepo := NewPostgresUserRepository(db)
 	publisher, err := NewEventPublisher("redis-a:6379")
 	if err != nil {
 		panic(err)

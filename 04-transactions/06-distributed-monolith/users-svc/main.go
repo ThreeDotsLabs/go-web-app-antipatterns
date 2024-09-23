@@ -18,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	userRepo := NewUserRepository(db)
+	userRepo := NewPostgresUserRepository(db)
 	ordersClient := NewOrdersClient("http://06_distributed_monolith_orders:8080")
 
 	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, ordersClient)

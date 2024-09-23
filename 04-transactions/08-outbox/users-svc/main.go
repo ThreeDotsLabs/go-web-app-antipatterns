@@ -19,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	userRepo := NewUserRepository(db)
+	userRepo := NewPostgresUserRepository(db)
 
 	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo)
 

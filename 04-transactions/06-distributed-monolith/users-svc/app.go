@@ -11,21 +11,21 @@ type UsePointsAsDiscount struct {
 }
 
 type UsePointsAsDiscountHandler struct {
-	userRepository userRepository
-	ordersService  ordersService
+	userRepository UserRepository
+	ordersService  OrdersService
 }
 
-type userRepository interface {
+type UserRepository interface {
 	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error
 }
 
-type ordersService interface {
+type OrdersService interface {
 	AddDiscount(ctx context.Context, userID int, discount int) error
 }
 
 func NewUsePointsAsDiscountHandler(
-	userRepository userRepository,
-	ordersService ordersService,
+	userRepository UserRepository,
+	ordersService OrdersService,
 ) UsePointsAsDiscountHandler {
 	return UsePointsAsDiscountHandler{
 		userRepository: userRepository,

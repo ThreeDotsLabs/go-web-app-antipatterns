@@ -11,15 +11,15 @@ type AddDiscount struct {
 }
 
 type AddDiscountHandler struct {
-	discountRepository discountRepository
+	discountRepository DiscountRepository
 }
 
-type discountRepository interface {
+type DiscountRepository interface {
 	AddDiscount(ctx context.Context, userID int, discount int) error
 }
 
 func NewAddDiscountHandler(
-	discountRepository discountRepository,
+	discountRepository DiscountRepository,
 ) AddDiscountHandler {
 	return AddDiscountHandler{
 		discountRepository: discountRepository,

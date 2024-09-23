@@ -15,17 +15,17 @@ func MigrateDB(db *sql.DB) error {
 	return err
 }
 
-type DiscountRepository struct {
+type PostgresDiscountRepository struct {
 	db *sql.DB
 }
 
-func NewDiscountRepository(db *sql.DB) *DiscountRepository {
-	return &DiscountRepository{
+func NewPostgresDiscountRepository(db *sql.DB) *PostgresDiscountRepository {
+	return &PostgresDiscountRepository{
 		db: db,
 	}
 }
 
-func (r *DiscountRepository) AddDiscount(ctx context.Context, userID int, discount int) error {
+func (r *PostgresDiscountRepository) AddDiscount(ctx context.Context, userID int, discount int) error {
 	_, err := r.db.ExecContext(ctx, "UPDATE user_discounts SET next_order_discount = next_order_discount + $1 WHERE user_id = $2", discount, userID)
 	if err != nil {
 		return err

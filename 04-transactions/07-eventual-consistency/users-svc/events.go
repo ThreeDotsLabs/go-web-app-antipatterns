@@ -10,11 +10,11 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-type EventPublisher struct {
+type WatermillEventPublisher struct {
 	publisher message.Publisher
 }
 
-func NewEventPublisher(redisAddr string) (*EventPublisher, error) {
+func NewEventPublisher(redisAddr string) (*WatermillEventPublisher, error) {
 	logger := watermill.NewStdLogger(false, false)
 
 	client := redis.NewClient(&redis.Options{
@@ -31,7 +31,7 @@ func NewEventPublisher(redisAddr string) (*EventPublisher, error) {
 		return nil, err
 	}
 
-	return &EventPublisher{
+	return &WatermillEventPublisher{
 		publisher: publisher,
 	}, nil
 }
@@ -41,7 +41,7 @@ type PointsUsedForDiscount struct {
 	Points int `json:"points"`
 }
 
-func (p *EventPublisher) PublishPointsUsedForDiscount(ctx context.Context, userID int, points int) error {
+func (p *WatermillEventPublisher) PublishPointsUsedForDiscount(ctx context.Context, userID int, points int) error {
 	event := PointsUsedForDiscount{
 		UserID: userID,
 		Points: points,
