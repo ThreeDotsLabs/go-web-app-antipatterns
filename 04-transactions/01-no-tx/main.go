@@ -18,8 +18,8 @@ func main() {
 		panic(err)
 	}
 
-	userRepo := NewUserRepository(db)
-	discountRepo := NewDiscountRepository(db)
+	userRepo := NewPostgresUserRepository(db)
+	discountRepo := NewPostgresDiscountRepository(db)
 
 	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, discountRepo)
 

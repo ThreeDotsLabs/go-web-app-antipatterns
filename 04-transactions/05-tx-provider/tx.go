@@ -18,8 +18,8 @@ func NewTransactionProvider(db *sql.DB) *TransactionProvider {
 func (p *TransactionProvider) Transact(txFunc func(adapters Adapters) error) error {
 	return runInTx(p.db, func(tx *sql.Tx) error {
 		adapters := Adapters{
-			UserRepository:     NewUserRepository(tx),
-			AuditLogRepository: NewAuditLogRepository(tx),
+			UserRepository:     NewPostgresUserRepository(tx),
+			AuditLogRepository: NewPostgresAuditLogRepository(tx),
 		}
 
 		return txFunc(adapters)

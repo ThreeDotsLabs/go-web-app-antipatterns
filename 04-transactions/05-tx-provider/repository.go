@@ -17,7 +17,7 @@ func MigrateDB(db *sql.DB) error {
 		CREATE TABLE IF NOT EXISTS user_discounts (
 			user_id INT PRIMARY KEY REFERENCES users(id),
 			next_order_discount INT NOT NULL DEFAULT 0
-	    );
+		);
 
 		CREATE TABLE IF NOT EXISTS audit_log (
 			id SERIAL PRIMARY KEY,
@@ -33,16 +33,16 @@ type db interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 }
 
-type UserRepository struct {
+type PostgresUserRepository struct {
 	db db
 }
 
-func NewUserRepository(db db) *UserRepository {
-	return &UserRepository{
+func NewPostgresUserRepository(db db) *PostgresUserRepository {
+	return &PostgresUserRepository{
 		db: db,
 	}
 }
-func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error {
+func (r *PostgresUserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, error)) error {
 	row := r.db.QueryRowContext(ctx, "SELECT email, points FROM users WHERE id = $1 FOR UPDATE", userID)
 
 	var email string
@@ -85,17 +85,17 @@ func (r *UserRepository) UpdateByID(ctx context.Context, userID int, updateFn fu
 	return nil
 }
 
-type AuditLogRepository struct {
+type PostgresAuditLogRepository struct {
 	db db
 }
 
-func NewAuditLogRepository(db db) *AuditLogRepository {
-	return &AuditLogRepository{
+func NewPostgresAuditLogRepository(db db) *PostgresAuditLogRepository {
+	return &PostgresAuditLogRepository{
 		db: db,
 	}
 }
 
-func (r *AuditLogRepository) StoreAuditLog(ctx context.Context, log string) error {
+func (r *PostgresAuditLogRepository) StoreAuditLog(ctx context.Context, log string) error {
 	_, err := r.db.ExecContext(ctx, "INSERT INTO audit_log (log) VALUES ($1)", log)
 	return err
 }

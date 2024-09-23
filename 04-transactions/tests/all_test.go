@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sync"
 	"testing"
 	"time"
 
@@ -19,10 +18,8 @@ import (
 )
 
 type testCase struct {
-	Name           string
-	URL            string
-	DiscountDBPort int
-	UsersDBPort    int
+	Name string
+	URL  string
 }
 
 func TestAll(t *testing.T) {
@@ -32,46 +29,31 @@ func TestAll(t *testing.T) {
 		{Name: "03-tx-in-repo", URL: "http://localhost:8103"},
 		{Name: "04-update-func-closure", URL: "http://localhost:8104"},
 		{Name: "05-tx-provider", URL: "http://localhost:8105"},
-		{Name: "06-distributed-monolith", URL: "http://localhost:8162", DiscountDBPort: 5433, UsersDBPort: 5434},
-		{Name: "07-eventual-consistency", URL: "http://localhost:8172", DiscountDBPort: 5433, UsersDBPort: 5434},
-		{Name: "08-outbox", URL: "http://localhost:8182", DiscountDBPort: 5433, UsersDBPort: 5434},
 	}
-	for _, a := range testCases {
-		t.Run(a.Name, func(t *testing.T) {
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 
-			userID := createUser(t, a, 100)
+			userID := createUser(t, tc, 100)
 
-			usePoints(t, a, userID, 25)
+			usePoints(t, tc, userID, 25)
 
-			assertPoints(t, a, userID, 75)
-			assertDiscount(t, a, userID, 25)
+			assertPoints(t, userID, 75)
+			assertDiscount(t, userID, 25)
+
+			usePoints(t, tc, userID, 50)
+
+			assertPoints(t, userID, 25)
+			assertDiscount(t, userID, 75)
 		})
 	}
 }
 
-var dbs = map[int]*sql.DB{}
-
-var lock sync.Mutex
-
-func getDB(t *testing.T, port int) *sql.DB {
+func getDB(t *testing.T) *sql.DB {
 	t.Helper()
 
-	if port == 0 {
-		port = 5432
-	}
-
-	lock.Lock()
-	defer lock.Unlock()
-
-	if dbs[port] != nil {
-		return dbs[port]
-	}
-
-	db, err := sql.Open("postgres", fmt.Sprintf("postgres://postgres:postgres@localhost:%v/postgres?sslmode=disable", port))
+	db, err := sql.Open("postgres", fmt.Sprintf("postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"))
 	require.NoError(t, err)
-
-	dbs[port] = db
 
 	return db
 }
@@ -81,7 +63,7 @@ func createUser(t *testing.T, tc testCase, points int) int {
 
 	email := uuid.NewString() + "@" + tc.Name + ".com"
 
-	usersDB := getDB(t, tc.UsersDBPort)
+	usersDB := getDB(t)
 
 	row := usersDB.QueryRow("INSERT INTO users (email, points) VALUES ($1, $2) RETURNING id", email, points)
 
@@ -89,7 +71,7 @@ func createUser(t *testing.T, tc testCase, points int) int {
 	err := row.Scan(&id)
 	require.NoError(t, err)
 
-	discountDB := getDB(t, tc.DiscountDBPort)
+	discountDB := getDB(t)
 
 	_, err = discountDB.Exec("INSERT INTO user_discounts (user_id) VALUES ($1)", id)
 	require.NoError(t, err)
@@ -125,10 +107,10 @@ func usePoints(t *testing.T, tc testCase, userID int, points int) {
 	require.Equal(t, http.StatusOK, res.StatusCode, string(body))
 }
 
-func assertPoints(t *testing.T, tc testCase, userID int, expectedPoints int) {
+func assertPoints(t *testing.T, userID int, expectedPoints int) {
 	t.Helper()
 
-	usersDB := getDB(t, tc.UsersDBPort)
+	usersDB := getDB(t)
 
 	assert.EventuallyWithT(t, func(t *assert.CollectT) {
 		row := usersDB.QueryRowContext(context.Background(), "SELECT points FROM users WHERE id = $1", userID)
@@ -141,10 +123,10 @@ func assertPoints(t *testing.T, tc testCase, userID int, expectedPoints int) {
 	}, 2*time.Second, 100*time.Millisecond)
 }
 
-func assertDiscount(t *testing.T, tc testCase, userID int, expectedDiscount int) {
+func assertDiscount(t *testing.T, userID int, expectedDiscount int) {
 	t.Helper()
 
-	discountDB := getDB(t, tc.DiscountDBPort)
+	discountDB := getDB(t)
 
 	assert.EventuallyWithT(t, func(t *assert.CollectT) {
 		row := discountDB.QueryRowContext(context.Background(), "SELECT next_order_discount FROM user_discounts WHERE user_id = $1", userID)
