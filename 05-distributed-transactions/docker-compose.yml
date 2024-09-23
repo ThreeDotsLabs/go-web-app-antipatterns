@@ -1,8 +1,8 @@
 services:
-  01_no_tx:
+  01_distributed_monolith_users:
     build: ./docker/service
     volumes:
-      - ./01-no-tx:/app
+      - ./01-distributed-monolith/users-svc:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -12,10 +12,10 @@ services:
       - apps
     restart: unless-stopped
 
-  02_tx_in_logic:
+  01_distributed_monolith_orders:
     build: ./docker/service
     volumes:
-      - ./02-tx-in-logic:/app
+      - ./01-distributed-monolith/orders-svc:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -25,10 +25,10 @@ services:
       - apps
     restart: unless-stopped
 
-  03_tx_in_repo:
+  02_eventual_consistency_users:
     build: ./docker/service
     volumes:
-      - ./03-tx-in-repo:/app
+      - ./02-eventual-consistency/users-svc:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -38,10 +38,10 @@ services:
       - apps
     restart: unless-stopped
 
-  04_update_func_closure:
+  02_eventual_consistency_orders:
     build: ./docker/service
     volumes:
-      - ./04-update-func-closure:/app
+      - ./02-eventual-consistency/orders-svc:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -51,10 +51,10 @@ services:
       - apps
     restart: unless-stopped
 
-  05_tx_provider:
+  03_outbox_users:
     build: ./docker/service
     volumes:
-      - ./05-tx-provider:/app
+      - ./03-outbox/users-svc:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -64,10 +64,10 @@ services:
       - apps
     restart: unless-stopped
 
-  06_distributed_monolith:
+  03_outbox_orders:
     build: ./docker/service
     volumes:
-      - ./06-distributed-monolith:/app
+      - ./03-outbox/orders-svc:/app
       - go_pkg:/go/pkg
       - go_cache:/go-cache
     working_dir: /app
@@ -83,6 +83,22 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5432:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+  redis-a:
+    image: redis:6
+    ports:
+      - 6379:6379
+    networks:
+      - apps
+    restart: unless-stopped
+
+  redis-b:
+    image: redis:6
+    ports:
+      - 6380:6379
     networks:
       - apps
     restart: unless-stopped
