@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 )
 
 type UsePointsAsDiscount struct {
@@ -14,7 +16,7 @@ type UsePointsAsDiscountHandler struct {
 }
 
 type UserRepository interface {
-	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []Event, error)) error
+	UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []cqrs.Event, error)) error
 }
 
 func NewUsePointsAsDiscountHandler(
@@ -26,7 +28,7 @@ func NewUsePointsAsDiscountHandler(
 }
 
 func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsDiscount) error {
-	return h.userRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, []Event, error) {
+	return h.userRepository.UpdateByID(ctx, cmd.UserID, func(user *User) (bool, []cqrs.Event, error) {
 		err := user.UsePoints(cmd.Points)
 		if err != nil {
 			return false, nil, err
@@ -37,6 +39,6 @@ func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsD
 			Points: cmd.Points,
 		}
 
-		return true, []Event{event}, nil
+		return true, []cqrs.Event{event}, nil
 	})
 }

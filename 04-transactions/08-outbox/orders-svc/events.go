@@ -1,67 +1,78 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/redis/go-redis/v9"
 )
+
+type PointsUsedForDiscount struct {
+	UserID int `json:"user_id"`
+	Points int `json:"points"`
+}
+
+func (p *PointsUsedForDiscount) EventName() string {
+	return "PointsUsedForDiscount"
+}
 
 func NewEventsRouter(
 	redisAddr string,
 	addDiscountHandler AddDiscountHandler,
 ) (*message.Router, error) {
 	logger := watermill.NewStdLogger(false, false)
-	router, err := message.NewRouter(message.RouterConfig{}, logger)
-	if err != nil {
-		return nil, err
-	}
+	router := message.NewDefaultRouter(logger)
+
 	client := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
 
-	subscriber, err := redisstream.NewSubscriber(
-		redisstream.SubscriberConfig{
-			Client:        client,
-			ConsumerGroup: "orders-svc",
+	eventProcessor, err := cqrs.NewEventProcessorWithConfig(router, cqrs.EventProcessorConfig{
+		GenerateSubscribeTopic: func(params cqrs.EventProcessorGenerateSubscribeTopicParams) (string, error) {
+			return params.EventName, nil
 		},
-		logger,
-	)
+		SubscriberConstructor: func(params cqrs.EventProcessorSubscriberConstructorParams) (message.Subscriber, error) {
+			return redisstream.NewSubscriber(
+				redisstream.SubscriberConfig{
+					Client:        client,
+					ConsumerGroup: "orders-svc",
+				},
+				logger,
+			)
+		},
+		Marshaler: cqrs.JSONMarshaler{
+			GenerateName: cqrs.EventName,
+		},
+		Logger: logger,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	router.AddNoPublisherHandler(
-		"add_discount",
-		"PointsUsedForDiscount",
-		subscriber,
-		func(msg *message.Message) error {
-			type PointsUsedForDiscount struct {
-				UserID int `json:"user_id"`
-				Points int `json:"points"`
-			}
+	err = eventProcessor.AddHandlers(
+		cqrs.NewEventHandler(
+			"add-discount",
+			func(ctx context.Context, event *PointsUsedForDiscount) error {
+				cmd := AddDiscount{
+					UserID:   event.UserID,
+					Discount: event.Points,
+				}
 
-			var payload PointsUsedForDiscount
-			err := json.Unmarshal(msg.Payload, &payload)
-			if err != nil {
-				return err
-			}
+				err = addDiscountHandler.Handle(ctx, cmd)
+				if err != nil {
+					return err
+				}
 
-			cmd := AddDiscount{
-				UserID:   payload.UserID,
-				Discount: payload.Points,
-			}
-
-			err = addDiscountHandler.Handle(msg.Context(), cmd)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		},
+				return nil
+			},
+		),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	return router, nil
 }

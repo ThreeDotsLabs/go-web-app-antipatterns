@@ -7,7 +7,7 @@ type PointsUsedForDiscount struct {
 	Points int `json:"points"`
 }
 
-func (p PointsUsedForDiscount) Name() string {
+func (p PointsUsedForDiscount) EventName() string {
 	return "PointsUsedForDiscount"
 }
 

@@ -2,16 +2,15 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/redis/go-redis/v9"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
-	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
+	"github.com/redis/go-redis/v9"
 )
 
 type WatermillEventPublisher struct {
-	publisher message.Publisher
+	eventBus *cqrs.EventBus
 }
 
 func NewEventPublisher(redisAddr string) (*WatermillEventPublisher, error) {
@@ -31,8 +30,21 @@ func NewEventPublisher(redisAddr string) (*WatermillEventPublisher, error) {
 		return nil, err
 	}
 
+	eventBus, err := cqrs.NewEventBusWithConfig(publisher, cqrs.EventBusConfig{
+		GeneratePublishTopic: func(params cqrs.GenerateEventPublishTopicParams) (string, error) {
+			return params.EventName, nil
+		},
+		Marshaler: cqrs.JSONMarshaler{
+			GenerateName: cqrs.EventName,
+		},
+		Logger: logger,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &WatermillEventPublisher{
-		publisher: publisher,
+		eventBus: eventBus,
 	}, nil
 }
 
@@ -47,15 +59,7 @@ func (p *WatermillEventPublisher) PublishPointsUsedForDiscount(ctx context.Conte
 		Points: points,
 	}
 
-	payload, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
-	msg := message.NewMessage(watermill.NewUUID(), payload)
-	msg.SetContext(ctx)
-
-	err = p.publisher.Publish("PointsUsedForDiscount", msg)
+	err := p.eventBus.Publish(ctx, event)
 	if err != nil {
 		return err
 	}

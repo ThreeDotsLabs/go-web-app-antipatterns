@@ -3,21 +3,20 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
+
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
 	watermillSQL "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/components/forwarder"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/redis/go-redis/v9"
 )
 
-type Event interface {
-	Name() string
-}
+const forwarderTopic = "forwarder"
 
 type WatermillEventPublisher struct {
-	publisher message.Publisher
+	eventBus *cqrs.EventBus
 }
 
 func NewEventPublisher(db *sql.Tx) (*WatermillEventPublisher, error) {
@@ -40,27 +39,30 @@ func NewEventPublisher(db *sql.Tx) (*WatermillEventPublisher, error) {
 	publisher = forwarder.NewPublisher(
 		publisher,
 		forwarder.PublisherConfig{
-			ForwarderTopic: "forwarder",
+			ForwarderTopic: forwarderTopic,
 		},
 	)
 
+	eventBus, err := cqrs.NewEventBusWithConfig(publisher, cqrs.EventBusConfig{
+		GeneratePublishTopic: func(params cqrs.GenerateEventPublishTopicParams) (string, error) {
+			return params.EventName, nil
+		},
+		Marshaler: cqrs.JSONMarshaler{
+			GenerateName: cqrs.EventName,
+		},
+		Logger: logger,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &WatermillEventPublisher{
-		publisher: publisher,
+		eventBus: eventBus,
 	}, nil
 }
 
-func (p *WatermillEventPublisher) Publish(ctx context.Context, event Event) error {
-	payload, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
-	msg := message.NewMessage(watermill.NewUUID(), payload)
-	msg.SetContext(ctx)
-
-	topic := event.Name()
-
-	err = p.publisher.Publish(topic, msg)
+func (p *WatermillEventPublisher) Publish(ctx context.Context, event cqrs.Event) error {
+	err := p.eventBus.Publish(ctx, event)
 	if err != nil {
 		return err
 	}
@@ -106,7 +108,7 @@ func NewEventsForwarder(
 		redisPublisher,
 		logger,
 		forwarder.Config{
-			ForwarderTopic: "forwarder",
+			ForwarderTopic: forwarderTopic,
 		},
 	)
 	if err != nil {
