@@ -57,13 +57,13 @@ func (r *PostgresUserRepository) UpdateByID(ctx context.Context, userID int, upd
 			return err
 		}
 
-		publisher, err := NewEventPublisher(tx)
+		eventBus, err := NewWatermillEventBus(tx)
 		if err != nil {
 			return err
 		}
 
 		for _, event := range events {
-			err = publisher.Publish(ctx, event)
+			err = eventBus.Publish(ctx, event)
 			if err != nil {
 				return err
 			}

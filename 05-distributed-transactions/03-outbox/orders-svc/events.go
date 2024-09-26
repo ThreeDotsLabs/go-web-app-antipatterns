@@ -15,10 +15,6 @@ type PointsUsedForDiscount struct {
 	Points int `json:"points"`
 }
 
-func (p *PointsUsedForDiscount) EventName() string {
-	return "PointsUsedForDiscount"
-}
-
 func NewEventsRouter(
 	redisAddr string,
 	addDiscountHandler AddDiscountHandler,
@@ -44,10 +40,8 @@ func NewEventsRouter(
 				logger,
 			)
 		},
-		Marshaler: cqrs.JSONMarshaler{
-			GenerateName: cqrs.EventName,
-		},
-		Logger: logger,
+		Marshaler: cqrs.JSONMarshaler{},
+		Logger:    logger,
 	})
 	if err != nil {
 		return nil, err

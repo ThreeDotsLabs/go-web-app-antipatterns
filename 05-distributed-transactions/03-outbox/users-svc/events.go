@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 
 	"github.com/ThreeDotsLabs/watermill"
@@ -15,11 +14,7 @@ import (
 
 const forwarderTopic = "forwarder"
 
-type WatermillEventPublisher struct {
-	eventBus *cqrs.EventBus
-}
-
-func NewEventPublisher(db *sql.Tx) (*WatermillEventPublisher, error) {
+func NewWatermillEventBus(db *sql.Tx) (*cqrs.EventBus, error) {
 	logger := watermill.NewStdLogger(false, false)
 
 	var publisher message.Publisher
@@ -47,27 +42,14 @@ func NewEventPublisher(db *sql.Tx) (*WatermillEventPublisher, error) {
 		GeneratePublishTopic: func(params cqrs.GenerateEventPublishTopicParams) (string, error) {
 			return params.EventName, nil
 		},
-		Marshaler: cqrs.JSONMarshaler{
-			GenerateName: cqrs.EventName,
-		},
-		Logger: logger,
+		Marshaler: cqrs.JSONMarshaler{},
+		Logger:    logger,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &WatermillEventPublisher{
-		eventBus: eventBus,
-	}, nil
-}
-
-func (p *WatermillEventPublisher) Publish(ctx context.Context, event cqrs.Event) error {
-	err := p.eventBus.Publish(ctx, event)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return eventBus, nil
 }
 
 func NewEventsForwarder(

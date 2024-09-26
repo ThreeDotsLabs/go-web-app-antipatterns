@@ -7,10 +7,6 @@ type PointsUsedForDiscount struct {
 	Points int `json:"points"`
 }
 
-func (p PointsUsedForDiscount) EventName() string {
-	return "PointsUsedForDiscount"
-}
-
 type User struct {
 	id     int
 	email  string

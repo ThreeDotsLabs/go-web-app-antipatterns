@@ -20,7 +20,12 @@ type UserRepository interface {
 }
 
 type EventPublisher interface {
-	PublishPointsUsedForDiscount(ctx context.Context, userID int, points int) error
+	Publish(ctx context.Context, event any) error
+}
+
+type PointsUsedForDiscount struct {
+	UserID int `json:"user_id"`
+	Points int `json:"points"`
 }
 
 func NewUsePointsAsDiscountHandler(
@@ -46,7 +51,12 @@ func (h UsePointsAsDiscountHandler) Handle(ctx context.Context, cmd UsePointsAsD
 		return fmt.Errorf("could not update user: %w", err)
 	}
 
-	err = h.eventPublisher.PublishPointsUsedForDiscount(ctx, cmd.UserID, cmd.Points)
+	event := PointsUsedForDiscount{
+		UserID: cmd.UserID,
+		Points: cmd.Points,
+	}
+
+	err = h.eventPublisher.Publish(ctx, event)
 	if err != nil {
 		return fmt.Errorf("could not publish event: %w", err)
 	}

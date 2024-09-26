@@ -19,12 +19,12 @@ func main() {
 	}
 
 	userRepo := NewPostgresUserRepository(db)
-	publisher, err := NewEventPublisher("redis-a:6379")
+	eventBus, err := NewWatermillEventBus("redis-a:6379")
 	if err != nil {
 		panic(err)
 	}
 
-	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, publisher)
+	usePointsAsDiscountHandler := NewUsePointsAsDiscountHandler(userRepo, eventBus)
 
 	handler := NewHTTPHandler(usePointsAsDiscountHandler)
 
