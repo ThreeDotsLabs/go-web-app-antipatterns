@@ -1,7 +1,7 @@
 github.com/Rican7/retry v0.3.1 h1:scY4IbO8swckzoA/11HgBwaZRJEyY9vaNJshcdhp1Mc=
 github.com/Rican7/retry v0.3.1/go.mod h1:CxSDrhAyXmTMeEuRAnArMu1FHu48vtfjLREWqVl7Vw0=
-github.com/ThreeDotsLabs/watermill v1.3.8-0.20240906134819-f8e5a7b844cb h1:v2DI4yxZMYREp5kpgvVRjw7fQE/0cx+3p/25VjqMl8U=
-github.com/ThreeDotsLabs/watermill v1.3.8-0.20240906134819-f8e5a7b844cb/go.mod h1:lBnrLbxOjeMRgcJbv+UiZr8Ylz8RkJ4m6i/VN/Nk+to=
+github.com/ThreeDotsLabs/watermill v1.4.0-rc.1 h1:KrWJIe45szGK/TxpD9ahMDKZsKJiTHFQz9XLYorpnr0=
+github.com/ThreeDotsLabs/watermill v1.4.0-rc.1/go.mod h1:lBnrLbxOjeMRgcJbv+UiZr8Ylz8RkJ4m6i/VN/Nk+to=
 github.com/ThreeDotsLabs/watermill-redisstream v1.3.0 h1:iCNX6d2MiBkx0reAfLWa2Ls3sLjqbixoSFUhvmKkStg=
 github.com/ThreeDotsLabs/watermill-redisstream v1.3.0/go.mod h1:ZRe0VpA0Ho/4MESUrXdqJMaWtiWhi4emxIYpqsxi98Y=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=

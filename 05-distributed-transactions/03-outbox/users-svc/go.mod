@@ -3,7 +3,7 @@ module github.com/ThreeDotsLabs/go-web-app-antipatterns/05-distributed-transacti
 go 1.22.0
 
 require (
-	github.com/ThreeDotsLabs/watermill v1.3.8-0.20240906134819-f8e5a7b844cb
+	github.com/ThreeDotsLabs/watermill v1.4.0-rc.1
 	github.com/ThreeDotsLabs/watermill-redisstream v1.3.0
 	github.com/ThreeDotsLabs/watermill-sql/v3 v3.0.1
 	github.com/lib/pq v1.10.9

@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-
-	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 )
 
 func MigrateDB(db *sql.DB) error {
@@ -30,7 +28,7 @@ func NewPostgresUserRepository(db *sql.DB) *PostgresUserRepository {
 	}
 }
 
-func (r *PostgresUserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []cqrs.Event, error)) error {
+func (r *PostgresUserRepository) UpdateByID(ctx context.Context, userID int, updateFn func(user *User) (bool, []any, error)) error {
 	return runInTx(r.db, func(tx *sql.Tx) error {
 		row := tx.QueryRowContext(ctx, "SELECT email, points FROM users WHERE id = $1 FOR UPDATE", userID)
 
