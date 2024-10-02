@@ -1,6 +1,6 @@
 # Distributed Transactions
 
-For details, see ([Avoiding Distributed Transactions in Go Microservices](https://threedots.tech/post/avoiding-distributed-transactions-in-go-microservices/).
+For details, see [Distributed Transactions in Go: Read Before You Try](https://threedots.tech/post/distributed-transactions-in-go/).
 
 1. [The Distributed Monolith](./01-distributed-monolith)
 2. [Eventual Consistency](./02-eventual-consistency)
