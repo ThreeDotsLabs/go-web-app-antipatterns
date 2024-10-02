@@ -1,0 +1,111 @@
+services:
+  01_distributed_monolith_users:
+    build: ./docker/service
+    volumes:
+      - ./01-distributed-monolith/users-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8101:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  01_distributed_monolith_orders:
+    build: ./docker/service
+    volumes:
+      - ./01-distributed-monolith/orders-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8102:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  02_eventual_consistency_users:
+    build: ./docker/service
+    volumes:
+      - ./02-eventual-consistency/users-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8103:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  02_eventual_consistency_orders:
+    build: ./docker/service
+    volumes:
+      - ./02-eventual-consistency/orders-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8104:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  03_outbox_users:
+    build: ./docker/service
+    volumes:
+      - ./03-outbox/users-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8105:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  03_outbox_orders:
+    build: ./docker/service
+    volumes:
+      - ./03-outbox/orders-svc:/app
+      - go_pkg:/go/pkg
+      - go_cache:/go-cache
+    working_dir: /app
+    ports:
+      - 8106:8080
+    networks:
+      - apps
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    networks:
+      - apps
+    restart: unless-stopped
+
+  redis-a:
+    image: redis:6
+    ports:
+      - 6379:6379
+    networks:
+      - apps
+    restart: unless-stopped
+
+  redis-b:
+    image: redis:6
+    ports:
+      - 6380:6379
+    networks:
+      - apps
+    restart: unless-stopped
+
+networks:
+  apps:
+
+volumes:
+  go_pkg:
+  go_cache:
