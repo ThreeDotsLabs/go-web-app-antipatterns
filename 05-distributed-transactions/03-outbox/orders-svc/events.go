@@ -15,6 +15,19 @@ type PointsUsedForDiscount struct {
 	Points int `json:"points"`
 }
 
+type OnPointsUsedForDiscountHandler struct {
+	addDiscountHandler AddDiscountHandler
+}
+
+func (h OnPointsUsedForDiscountHandler) Handle(ctx context.Context, event *PointsUsedForDiscount) error {
+	cmd := AddDiscount{
+		UserID:   event.UserID,
+		Discount: event.Points,
+	}
+
+	return h.addDiscountHandler.Handle(ctx, cmd)
+}
+
 func NewEventsRouter(
 	redisAddr string,
 	addDiscountHandler AddDiscountHandler,
@@ -47,22 +60,14 @@ func NewEventsRouter(
 		return nil, err
 	}
 
+	onPointsUsedForDiscountHandler := OnPointsUsedForDiscountHandler{
+		addDiscountHandler: addDiscountHandler,
+	}
+
 	err = eventProcessor.AddHandlers(
 		cqrs.NewEventHandler(
-			"add-discount",
-			func(ctx context.Context, event *PointsUsedForDiscount) error {
-				cmd := AddDiscount{
-					UserID:   event.UserID,
-					Discount: event.Points,
-				}
-
-				err = addDiscountHandler.Handle(ctx, cmd)
-				if err != nil {
-					return err
-				}
-
-				return nil
-			},
+			"OnPointsUsedForDiscountHandler",
+			onPointsUsedForDiscountHandler.Handle,
 		),
 	)
 	if err != nil {
