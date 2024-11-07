@@ -21,8 +21,8 @@ func main() {
 	h := internal.NewUserHandler(storage)
 
 	r := chi.NewRouter()
-	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
 	handler := internal.HandlerFromMux(h, r)
 
